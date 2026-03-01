@@ -2,7 +2,7 @@
 
 > **AI-powered triage tool that identifies which rare disease patients with inconclusive genetic tests should be reanalyzed today — because the answer may already exist in the literature.**
 
-Built at **Harvard RareHack 2025** by Giorgi Bakuradze, Neha Chimakurthy, Maya McCabe, Sahar Islam, and Harsh Mishra.
+Built at **Harvard RareHack 2026** by Giorgi Bakuradze, Neha Chimakurthy, Maya McCabe, Sahar Islam, and Harsh Mishra.
 
 ---
 
