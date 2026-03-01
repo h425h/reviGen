@@ -1,0 +1,9 @@
+data/
+*.db
+*.sqlite
+*.tsv
+*.obo
+__pycache__/
+*.pyc
+.env
+node_modules/

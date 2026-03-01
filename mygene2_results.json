@@ -1,0 +1,153 @@
+{
+  "summary": {
+    "n_samples": 10,
+    "similarity_method": "jaccard",
+    "top1_accuracy": 0.9,
+    "top3_accuracy": 1.0,
+    "top10_accuracy": 1.0,
+    "f1_at1": 0.9,
+    "f1_at3": 1.0,
+    "f1_at10": 1.0,
+    "mean_reciprocal_rank": 0.95
+  },
+  "per_sample": [
+    {
+      "sample_id": "FOXG1_001",
+      "true_gene": "FOXG1",
+      "top1_prediction": "FOXG1",
+      "top3_predictions": [
+        "FOXG1",
+        "CDKL5",
+        "MECP2"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "CDKL5_001",
+      "true_gene": "CDKL5",
+      "top1_prediction": "CDKL5",
+      "top3_predictions": [
+        "CDKL5",
+        "DYRK1A",
+        "MECP2"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "MECP2_001",
+      "true_gene": "MECP2",
+      "top1_prediction": "MECP2",
+      "top3_predictions": [
+        "MECP2",
+        "CDKL5",
+        "FOXG1"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "STXBP1_001",
+      "true_gene": "STXBP1",
+      "top1_prediction": "STXBP1",
+      "top3_predictions": [
+        "STXBP1",
+        "SCN8A",
+        "KCNT1"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "PTHR1_001",
+      "true_gene": "PTHR1",
+      "top1_prediction": "PTHR1",
+      "top3_predictions": [
+        "PTHR1"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "ANKRD11_001",
+      "true_gene": "ANKRD11",
+      "top1_prediction": "ANKRD11",
+      "top3_predictions": [
+        "ANKRD11",
+        "SETD5",
+        "SETBP1"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "SCN2A_001",
+      "true_gene": "SCN2A",
+      "top1_prediction": "SCN2A",
+      "top3_predictions": [
+        "SCN2A",
+        "KCNQ2",
+        "STXBP1"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "DYRK1A_001",
+      "true_gene": "DYRK1A",
+      "top1_prediction": "DYRK1A",
+      "top3_predictions": [
+        "DYRK1A",
+        "KAT6A",
+        "MED13L"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "KAT6A_001",
+      "true_gene": "KAT6A",
+      "top1_prediction": "KAT6A",
+      "top3_predictions": [
+        "KAT6A",
+        "MED13L",
+        "DYRK1A"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true
+    },
+    {
+      "sample_id": "MED13L_001",
+      "true_gene": "MED13L",
+      "top1_prediction": "KAT6A",
+      "top3_predictions": [
+        "KAT6A",
+        "MED13L",
+        "DYRK1A"
+      ],
+      "rank_of_true": 2,
+      "correct_top1": false,
+      "correct_top3": true,
+      "correct_top10": true
+    }
+  ]
+}

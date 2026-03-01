@@ -1,0 +1,338 @@
+<!doctype html>
+<html ng-app="app">
+    <head ng-controller="cssController">
+        <!--
+            ~~~<*)(((((((()><<<
+        -->
+        <meta charset="utf-8" />
+        <meta name="google-site-verification" content="r8NMuwVUcKYkrhP_Ux73nNHrTuq_R_u5Bk_DLGtbBLg" />
+        <meta name="google-site-verification" content="jTq5egcjgdvASebqfLcEMLGYhsHMMkXgTRcBuZH7Nqw" />
+        <meta name="google-site-verification" content="P_LbLjRbeDNZqbPFZZOD60_kswwl8I6Y41KMl_jCWHI" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="University of Washington Center for Mendelian Genomics">
+        <meta name="generator" content="angular-spring">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <meta name="fragment" content="!" />
+
+        <!-- updated dynamically via update-meta directive -->
+        <meta name="description" content="MyGene2 connects families with rare conditions, clinicians, and researchers who are interested in publicly sharing health and genetic information with one another." />
+        <meta itemprop="description" content="MyGene2 connects families with rare conditions, clinicians, and researchers who are interested in publicly sharing health and genetic information with one another."></meta>
+
+        <!-- Facebook Open Graph Protocol Tags -->
+        <meta property=og:url content=https://mygene2.org/MyGene2/ meta-property=url />
+        <meta property=og:title content="MyGene2" meta-property=title />
+        <meta property=og:description meta-property=description content="Uniting families, clinicians, and researchers for rare disease discovery." />
+        <meta property=og:type content="website" meta-property=ogpType />
+        <meta property=og:image content="https://mygene2.org/MyGene2/images/MyGene2Logo.PNG" meta-property=ogpImage />
+
+        <!-- Twitter Card Tags -->
+        <meta name=twitter:card content="summary_large_image" meta-property=twitterCard />
+        <meta name=twitter:title content="MyGene2" meta-property=title />
+        <meta name=twitter:description meta-property=description content="Uniting families, clinicians, and researchers for rare disease discovery." />
+        <meta name=twitter:site content="@MyGene2" meta-property=twitterSite />
+        <meta name=twitter:image:src content="https://mygene2.org/MyGene2/images/MyGene2Logo.PNG" meta-property=twitterImage />
+
+        <title ng-bind="'MyGene2 - ' + title"></title>
+
+        <script type="text/javascript">
+                    var _contextPath = "/MyGene2";
+                    console.log(_contextPath);
+        </script>
+
+		<!-- youtube iframe api -->
+		<script src="https://www.youtube.com/iframe_api"></script>
+
+        <!-- Bower Components -->
+        <script src="/MyGene2/bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="/MyGene2/bower_components/angular/angular.js"></script>
+        <script src="/MyGene2/bower_components/angular-animate/angular-animate.js"></script>
+        <script src="/MyGene2/bower_components/angular-route/angular-route.js"></script>
+        <script src="/MyGene2/bower_components/angular-resource/angular-resource.js"></script>
+        <script src="/MyGene2/bower_components/angular-sanitize/angular-sanitize.js"></script>
+        <script src="/MyGene2/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+        <script src="/MyGene2/bower_components/angular-recaptcha/release/angular-recaptcha.min.js"></script>
+        <script src="/MyGene2/bower_components/angular-contenteditable/angular-contenteditable.js"></script>
+        <script src="/MyGene2/bower_components/AngularJS-Toaster/toaster.min.js"></script>
+        <script src="/MyGene2/bower_components/angular-ui-select/dist/select.min.js"></script>
+        <script src="/MyGene2/bower_components/ng-idle/angular-idle.min.js"></script>
+        <script src="/MyGene2/bower_components/ng-tags-input/ng-tags-input.min.js"></script>
+        <script src="/MyGene2/bower_components/ngUpload/ng-upload.min.js"></script>
+        <script src="/MyGene2/bower_components/ng-file-upload/ng-file-upload.js"></script>
+        <script src="/MyGene2/bower_components/ng-file-upload-shim/ng-file-upload-shim.js"></script>
+        <script src="/MyGene2/bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js"></script>
+        <script src="/MyGene2/bower_components/signature_pad/signature_pad.min.js"></script>
+        <script src="/MyGene2/bower_components/base64-js/lib/b64.js"></script>
+        <!--         <script src="/MyGene2/bower_components/angucomplete-alt/dist/angucomplete-alt.min.js"></script> -->
+        <script src="/MyGene2/js/Libraries/angucomplete-alt.js"></script>
+        <script src="/MyGene2/bower_components/angular-easyfb/build/angular-easyfb.min.js"></script>
+        <script src="/MyGene2/bower_components/angular-update-meta/dist/update-meta.min.js"></script>
+        <script src="/MyGene2/bower_components/checklist-model/checklist-model.js"></script>
+        <script src="/MyGene2/bower_components/angular-bootstrap-toggle/dist/angular-bootstrap-toggle.min.js"></script>
+        <script src="/MyGene2/bower_components/angular-youtube-mb/dist/angular-youtube-embed.min.js"></script>
+
+        <!-- ng-clipboard -->
+        <script src="https://cdn.rawgit.com/zenorocha/clipboard.js/master/dist/clipboard.min.js"></script>
+        <script src="/MyGene2/bower_components/ngclipboard/dist/ngclipboard.js"></script>
+
+        <!-- entry -->
+        <script src="/MyGene2/js/app.js"></script>
+
+        <!-- controllers -->
+        <script src="/MyGene2/js/Controllers/headerController.js"></script>
+        <script src="/MyGene2/js/Controllers/cssController.js"></script>
+        <script src="/MyGene2/js/Controllers/homeController.js"></script>
+        <script src="/MyGene2/js/Controllers/aboutController.js"></script>
+        <script src="/MyGene2/js/Controllers/familiesController.js"></script>
+        <script src="/MyGene2/js/Controllers/familyTabsWrapperController.js"></script>
+        <script src="/MyGene2/js/Controllers/consentController.js"></script>
+        <script src="/MyGene2/js/Controllers/createProfileController.js"></script>
+        <script src="/MyGene2/js/Controllers/variantsByHetGroupController.js"></script>
+        <script src="/MyGene2/js/Controllers/variantsByFamilyController.js"></script>
+        <script src="/MyGene2/js/Controllers/variantsByGeneController.js"></script>
+        <script src="/MyGene2/js/Controllers/variantsByPhenotypeController.js"></script>
+        <script src="/MyGene2/js/Controllers/loginController.js"></script>
+        <script src="/MyGene2/js/Controllers/uploadGeneticDataController.js"></script>
+        <script src="/MyGene2/js/Controllers/uploadHealthInfoController.js"></script>
+        <script src="/MyGene2/js/Controllers/uploadProviderInfoController.js"></script>
+        <script src="/MyGene2/js/Controllers/createAccountController.js"></script>
+        <script src="/MyGene2/js/Controllers/searchController.js"></script>
+        <script src="/MyGene2/js/Controllers/Directives/familyTabControllers.js"></script>
+        <script src="/MyGene2/js/Controllers/Directives/paginationController.js"></script>
+        <script src="/MyGene2/js/Controllers/Directives/searchFilterController.js"></script>
+        <script src="/MyGene2/js/Controllers/Directives/fileuploadStatusController.js"></script>
+        
+        <script src="/MyGene2/js/Controllers/contactController.js"></script>
+        <script src="/MyGene2/js/Controllers/faqController.js"></script>
+        <script src="/MyGene2/js/Controllers/candidateGeneController.js"></script>
+        <script src="/MyGene2/js/Controllers/familyDashboardController.js"></script>
+        <script src="/MyGene2/js/Controllers/clinicianDashboardController.js"></script>
+        <script src="/MyGene2/js/Controllers/clinicianCaseInformationController.js"></script>
+        <script src="/MyGene2/js/Controllers/careProvidersController.js"></script>
+        <script src="/MyGene2/js/Controllers/researchersController.js"></script>
+        <script src="/MyGene2/js/Controllers/researchGeneticTestingController.js"></script>
+        <script src="/MyGene2/js/Controllers/consentConfirmationCtrl.js"></script>
+        <script src="/MyGene2/js/Controllers/consentTestController.js"></script>
+        <script src="/MyGene2/js/Controllers/newsController.js"></script>
+        <script src="/MyGene2/js/Controllers/mmeMatchingController.js"></script>
+        <script src="/MyGene2/js/Controllers/getStartedController.js"></script>
+        <script src="/MyGene2/js/Controllers/pickGeneController.js"></script>
+        <script src="/MyGene2/js/Controllers/disclaimerController.js"></script>
+        <script src="/MyGene2/js/Controllers/adminDashboardController.js"></script>
+        <script src="/MyGene2/js/Controllers/forgotPasswordController.js"></script>
+        <script src="/MyGene2/js/Controllers/activateAccountController.js"></script>
+        <script src="/MyGene2/js/Controllers/resendActivateAccountController.js"></script>
+        <script src="/MyGene2/js/Controllers/Directives/toggleableColumnsController.js"></script>
+        <script src="/MyGene2/js/Controllers/footerController.js"></script>
+        <script src="/MyGene2/js/Controllers/videoController.js"></script>
+        <script src="/MyGene2/js/Controllers/adminLogsController.js"></script>
+        <script src="/MyGene2/js/Controllers/genesController.js"></script>
+        <script src="/MyGene2/js/Controllers/Directives/genePaginationController.js"></script>
+        <script src="/MyGene2/js/Controllers/adminApprovePhotosController.js"></script>
+        <script src="/MyGene2/js/Controllers/adminMMEConfigurationController.js"></script>
+        <script src="/MyGene2/js/Controllers/adminReviewMatchReportController.js"></script>
+        <script src="/MyGene2/js/Controllers/adminReviewVariantsController.js"></script>
+        <script src="/MyGene2/js/Controllers/matchReportController.js"></script>
+        <script src="/MyGene2/js/Controllers/Directives/candidateGeneFormController.js"></script>
+        <script src="/MyGene2/js/Controllers/exomeSequencingApplication.js"></script>
+        <script src="/MyGene2/js/Controllers/exomeSequencing.js"></script>
+        <script src="/MyGene2/js/Controllers/exomeSequencingDetails.js"></script>
+        <script src="/MyGene2/js/Controllers/adminExomeSequencingPortalController.js"></script>
+        <script src="/MyGene2/js/Controllers/adminPartnerOrganizationsController.js"></script>
+        <script src="/MyGene2/js/Controllers/adminBulkAccountCreationController.js"></script>
+        <script src="/MyGene2/js/Controllers/claimableProfileInstructionsController.js"></script>
+
+        <!-- Modal -->
+        <script src="/MyGene2/js/Controllers/modal/consentModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/assentModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/parentalModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/loginHelpModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/deleteTabModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/createLinkNameModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/confirmModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/textareaModalCtrl.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/imageModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/disclaimerModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/unsavedFieldsConfirmation.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/verificationModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/fileDownloadModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/cityStateMismatchController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/addConsentModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/firstLoginModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/viewNewsletterModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/pickDeleteTypeModalCtrl.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/basicEmailModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/companyModalCtrl.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/cropImgModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/loginModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/shareCaseModalCtrl.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/variantsByGeneViewFamiliesModalCtrl.js"></script>
+	<script src="/MyGene2/js/Controllers/modal/adminEditOptionsModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/adminEditModals/bulkUploadModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/adminEditModals/adminFileManagerModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/adminEditModals/adminEditPhenotypeProfileModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/adminEditModals/adminEditFamilyStoryModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/adminEditModals/adminEditCaseTextModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/adminEditModals/adminEditCandidateGenesModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/releaseMatchReportModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/genericConfirmModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/genericConfirmExplanationModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/genericTableModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/adminExomeSequencingApplicationModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/arrayConfirmExplanationModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/proxyModals/proxyEditCandidateGenesModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/proxyModals/proxyEditFamilyStoryModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/sequencingApplicationReviewModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/exomeSequencingCommentsModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/youtubePlayerModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/claimProfileModalController.js"></script>
+        <script src="/MyGene2/js/Controllers/modal/claimProfileSummaryModalController.js"></script>
+
+        <!-- Services -->
+        <script src="/MyGene2/js/Services/loginService.js"></script>
+        <script src="/MyGene2/js/Services/mainService.js"></script>
+        <script src="/MyGene2/js/Services/configService.js"></script>
+        <script src="/MyGene2/js/Services/circleService.js"></script>
+        <script src="/MyGene2/js/Services/validationUtilService.js"></script>
+        <script src="/MyGene2/js/Services/profileService.js"></script>
+        <script src="/MyGene2/js/Services/notificationService.js"></script>
+        <script src="/MyGene2/js/Services/annotationService.js"></script>
+        <script src="/MyGene2/js/Services/familyPermissionService.js"></script>
+        <script src="/MyGene2/js/Services/fileReader.js"></script>
+        <script src="/MyGene2/js/Services/photoThumbnailService.js"></script>
+        <script src="/MyGene2/js/Services/familyProfileCache.js"></script>
+        <script src="/MyGene2/js/Services/searchFilterService.js"></script>
+        <script src="/MyGene2/js/Services/httpRequestInterceptor.js"></script>
+        <script src="/MyGene2/js/Services/httpApiRequestInterceptor.js"></script>
+        <script src="/MyGene2/js/Services/thirdPartyServices.js"></script>
+        <script src="/MyGene2/js/Services/pdfService.js"></script>
+        <script src="/MyGene2/js/Services/fileuploadService.js"></script>
+        <script src="/MyGene2/js/Services/printService.js"></script>
+        <script src="/MyGene2/js/Services/metaService.js"></script>
+        <script src="/MyGene2/js/Services/adminService.js"></script>
+        <script src="/MyGene2/js/Services/mmeService.js"></script>
+        <script src="/MyGene2/js/Services/mobileService.js"></script>
+        <script src="/MyGene2/js/Services/candidateGeneFormService.js"></script>
+        <script src="/MyGene2/js/Services/claimProfileService.js"></script>
+        <script src="/MyGene2/js/Services/paginationServices.js"></script>
+
+        <!-- Directives -->
+        <script src="/MyGene2/js/Directives/dynamicDirective.js"></script>
+        <script src="/MyGene2/js/Directives/enterSupport.js"></script>
+        <script src="/MyGene2/js/Directives/familyTabDirectives.js"></script>
+        <script src="/MyGene2/js/Directives/ngFileSelect.js"></script>
+        <script src="/MyGene2/js/Directives/pagination.js"></script>
+        <script src="/MyGene2/js/Directives/searchFilter.js"></script>
+        <script src="/MyGene2/js/Directives/familyResultsTable.js"></script>
+        <script src="/MyGene2/js/Directives/truncateElement.js"></script>
+        <script src="/MyGene2/js/Directives/phenotypesColumn.js"></script>
+        <script src="/MyGene2/js/Directives/genesColumn.js"></script>
+        <script src="/MyGene2/js/Directives/ngSignaturePad.js"></script>
+        <script src="/MyGene2/js/Directives/fileuploadStatus.js"></script>
+        <script src="/MyGene2/js/Directives/genePagination.js"></script>
+        <script src="/MyGene2/js/Directives/jsonLd.js"></script>
+
+        <!-- Constants -->
+        <script src="/MyGene2/js/Constants/constants.js"></script>
+        <script src="/MyGene2/js/Constants/colorConstants.js"></script>
+        <script src="/MyGene2/js/Constants/roleConstants.js"></script>
+        <script src="/MyGene2/js/Constants/errorConstants.js"></script>
+        <script src="/MyGene2/js/Constants/emitterConstants.js"></script>
+        <script src="/MyGene2/js/Constants/generalConstants.js"></script>
+
+        <!-- Libraries -->
+        <script src="/MyGene2/js/Libraries/ngMask.min.js"></script>
+        <script src="/MyGene2/js/Libraries/jquery.dotdotdot.min.js"></script>
+        <script src="/MyGene2/js/Libraries/twitter.js"></script>
+        <script src="/MyGene2/js/Libraries/html2canvas.js"></script>
+<!--         <script src="//mrrio.github.io/jsPDF/dist/jspdf.debug.js"></script> -->
+        <script src="/MyGene2/js/Libraries/videogular.min.js"></script>
+        <script src="/MyGene2/js/Libraries/vg-controls.min.js"></script>
+        <script src="/MyGene2/js/Libraries/vg-overlay-play.min.js"></script>
+        <script src="/MyGene2/js/Libraries/ng-img-crop.js"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-70GM27KSNS"></script>
+        <script src="/MyGene2/js/Libraries/googAnalytics.js"></script>
+
+        <!-- Filters -->
+
+        <script src="/MyGene2/js/Filters/familyPrivacyFilter.js"></script>
+        <script src="/MyGene2/js/Filters/fileUploadFilter.js"></script>
+        <script src="/MyGene2/js/Filters/titlecase.js"></script>
+
+        <script src="/MyGene2/js/Filters/limitResults.js"></script>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="/MyGene2/bower_components/bootstrap/dist/css/bootstrap.css">
+        <link rel="stylesheet" href="/MyGene2/bower_components/components-font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/MyGene2/bower_components/angular-motion/dist/angular-motion.min.css">
+        <link rel="stylesheet" href="/MyGene2/bower_components/AngularJS-Toaster/toaster.min.css">
+        <link rel="stylesheet" href="/MyGene2/bower_components/ng-tags-input/ng-tags-input.css">
+        <link rel="stylesheet" href="/MyGene2/bower_components/angular-ui-select/dist/select.min.css">
+        <link rel="stylesheet" href="/MyGene2/bower_components/angular-bootstrap-toggle/dist/angular-bootstrap-toggle.min.css">
+
+        <link rel="stylesheet" href="/MyGene2/style/lib.css">
+        <link rel="stylesheet" href="/MyGene2/style/fonts.css">
+        <link rel="stylesheet" href="/MyGene2/style/fileuploadStatus.css">
+        <link rel="stylesheet" href="/MyGene2/style/ng-img-crop.css">
+
+        <link rel="stylesheet" href="/MyGene2/style/app.css">
+        <link rel="stylesheet" type="text/css"  ng-href="/MyGene2/{{css}}">
+
+        <link rel="shortcut icon" href="/MyGene2/images/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="/MyGene2/images/favicon.ico" type="image/x-icon">
+        <link rel="canonical" ng-href="https://mygene2.org/MyGene2/{{canonical}}" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+        <base href="/MyGene2/" />
+
+<!-- Facebook Pixel Code -->
+<script>
+(function() {
+    var _fbq = window._fbq || (window._fbq = []);
+    if (!_fbq.loaded) {
+        var fbds = document.createElement('script');
+        fbds.async = true;
+        fbds.src = '//connect.facebook.net/en_US/fbds.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(fbds, s);
+        _fbq.loaded = true;
+    }
+
+    _fbq.push(['addPixelId', '510827259103311']);
+})();
+// 	fbq('init', '510827259103311');
+// 	fbq('track', "PageView");
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=510827259103311&ev=PageView&noscript=1"/></noscript>
+<!-- End Facebook Pixel Code -->
+
+    </head>
+
+    <body>
+        <div id="wrapper" class="siteWrapper">
+            <div ng-include="'templates/header.html'"></div>
+            <!--<div id="content" itemscope itemtype="http://schema.org/Thing">-->
+                <div id="printable" itemprop="description">
+                    <div ng-include="'templates/updateMeta.html'"></div>
+                    <ng-view autoscroll="true"></ng-view>
+                </div>
+            <!--</div>-->
+        </div>
+
+        <div ng-include="'templates/footer.html'"></div>
+
+    <fileupload-status></fileupload-status>
+    <toaster-container></toaster-container>
+
+</body>
+
+<!-- reCAPTCHA script -->
+<script
+    src="https://www.google.com/recaptcha/api.js?onload=vcRecaptchaApiLoaded&render=explicit"
+    async defer>
+</script>
+
+<!-- 3rd Party Check (will emit message with a MM:3PCsupported or MM:3PCunsupported, depending if 3rd party cookies enabled) -->
+<iframe src="https://mindmup.github.io/3rdpartycookiecheck/start.html"
+        style="display:none" />
+
+</html>

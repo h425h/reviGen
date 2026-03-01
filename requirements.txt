@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pandas
+numpy
+networkx
+anthropic
+requests
+pydantic
+python-multipart

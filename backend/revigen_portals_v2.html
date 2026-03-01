@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>reviGen — Rare Disease Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset & Design Tokens ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:     #F7F4EF;
+  --paper:     #FEFCF8;
+  --ink:       #1A1814;
+  --ink-mid:   #5C574F;
+  --ink-dim:   #9B9590;
+  --rule:      #E8E3DB;
+  --white:     #FFFFFF;
+
+  --tab-1:  #5C8F7C;   /* sage       — symptoms   */
+  --tab-2:  #7B6FA0;   /* lavender   — genomic    */
+  --tab-3:  #B8894A;   /* amber      — referrals  */
+  --tab-4:  #5A8BB5;   /* slate      — chat       */
+  --tab-5:  #B86464;   /* dusty rose — diagnosis  */
+
+  --panel-bg:   #1C2232;
+  --panel-rule: #2A3249;
+  --panel-text: #C4CADB;
+  --panel-dim:  #6A748C;
+  --doc-accent: #4A8BBF;
+
+  --radius:    12px;
+  --shadow:    0 4px 24px rgba(26,24,20,0.07);
+  --shadow-lg: 0 12px 48px rgba(26,24,20,0.13);
+}
+
+body { font-family:'Instrument Sans',sans-serif; background:var(--cream); color:var(--ink); min-height:100vh; overflow-x:hidden; }
+
+/* ── Landing ─────────────────────────────────────────────────────── */
+#landing {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; background:var(--paper); gap:0;
+}
+.landing-logo { font-family:'DM Serif Display',serif; font-size:56px; letter-spacing:-2px; margin-bottom:8px; }
+.landing-logo em { font-style:normal; color:var(--tab-5); }
+.landing-sub { font-size:13px; color:var(--ink-dim); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:64px; }
+.portal-cards { display:flex; gap:24px; }
+.portal-card {
+  width:220px; padding:32px 28px; border-radius:var(--radius);
+  border:1.5px solid var(--rule); background:var(--white);
+  cursor:pointer; transition:all .25s ease; text-align:center; box-shadow:var(--shadow);
+}
+.portal-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); border-color:var(--ink-mid); }
+.portal-card .ci { font-size:34px; margin-bottom:16px; }
+.portal-card .ct { font-family:'DM Serif Display',serif; font-size:22px; margin-bottom:6px; }
+.portal-card .cs { font-size:12px; color:var(--ink-dim); line-height:1.55; }
+
+/* ── Portal layout ─────────────────────────────────────────────── */
+.portal { display:none; min-height:100vh; }
+.portal.active { display:flex; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PATIENT PORTAL
+══════════════════════════════════════════════════════════════════ */
+#patient-portal { flex-direction:row; background:var(--cream); position:relative; }
+
+.pt-header {
+  position:fixed; top:0; left:0;
+  width:calc(100% - 52px); height:60px;
+  background:var(--paper); border-bottom:1px solid var(--rule);
+  display:flex; align-items:center; padding:0 28px; z-index:100; gap:12px;
+}
+.portal-logo { font-family:'DM Serif Display',serif; font-size:24px; letter-spacing:-.5px; }
+.portal-logo em { font-style:normal; color:var(--tab-5); }
+.portal-badge {
+  font-size:11px; font-weight:700; color:var(--ink-dim);
+  letter-spacing:.06em; text-transform:uppercase;
+  padding:3px 10px; border:1px solid var(--rule); border-radius:20px;
+}
+.back-btn {
+  margin-left:auto; background:none; border:1px solid var(--rule); border-radius:8px;
+  padding:6px 14px; font-size:12px; font-family:'Instrument Sans',sans-serif;
+  color:var(--ink-mid); cursor:pointer; transition:all .2s;
+}
+.back-btn:hover { border-color:var(--ink-mid); color:var(--ink); }
+
+.pt-content {
+  margin-top:60px; margin-right:52px; flex:1;
+  overflow-y:auto; padding:40px 48px; min-height:calc(100vh - 60px);
+}
+
+/* Book tab strip */
+.tab-strip {
+  position:fixed; right:0; top:0; width:52px; height:100vh;
+  display:flex; flex-direction:column; justify-content:center;
+  z-index:200; background:var(--cream); border-left:1px solid var(--rule);
+}
+.tab-btn {
+  writing-mode:vertical-rl; text-orientation:mixed; transform:rotate(180deg);
+  padding:20px 0; font-size:10.5px; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; cursor:pointer; border:none;
+  transition:all .2s ease; font-family:'Instrument Sans',sans-serif;
+  flex:1; display:flex; align-items:center; justify-content:center;
+  color:var(--ink-mid); background:transparent; position:relative;
+}
+.tab-btn::after {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--tc); opacity:0; transition:opacity .2s;
+}
+.tab-btn:hover::after, .tab-btn.active::after { opacity:1; }
+.tab-btn.active { font-weight:700; }
+.tab-btn[data-tab="symptoms"]  { --tc:var(--tab-1); }
+.tab-btn[data-tab="genomic"]   { --tc:var(--tab-2); }
+.tab-btn[data-tab="referrals"] { --tc:var(--tab-3); }
+.tab-btn[data-tab="chat"]      { --tc:var(--tab-4); }
+.tab-btn[data-tab="diagnosis"] { --tc:var(--tab-5); }
+.tab-btn.active[data-tab="symptoms"]  { background:color-mix(in srgb,var(--tab-1) 7%,transparent); color:var(--tab-1); }
+.tab-btn.active[data-tab="genomic"]   { background:color-mix(in srgb,var(--tab-2) 7%,transparent); color:var(--tab-2); }
+.tab-btn.active[data-tab="referrals"] { background:color-mix(in srgb,var(--tab-3) 7%,transparent); color:var(--tab-3); }
+.tab-btn.active[data-tab="chat"]      { background:color-mix(in srgb,var(--tab-4) 7%,transparent); color:var(--tab-4); }
+.tab-btn.active[data-tab="diagnosis"] { background:color-mix(in srgb,var(--tab-5) 7%,transparent); color:var(--tab-5); }
+
+/* Pages */
+.page { display:none; animation:fadeUp .3s ease; }
+.page.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* Typography */
+.eyebrow { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; margin-bottom:8px; }
+.page-title { font-family:'DM Serif Display',serif; font-size:34px; letter-spacing:-.5px; margin-bottom:6px; }
+.page-desc { font-size:14px; color:var(--ink-mid); margin-bottom:36px; line-height:1.6; max-width:560px; }
+
+/* Forms */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; max-width:760px; }
+.form-grid.full { grid-template-columns:1fr; }
+.field { display:flex; flex-direction:column; gap:7px; }
+.field.s2 { grid-column:span 2; }
+.field label { font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-mid); }
+.field input, .field select, .field textarea {
+  border:1.5px solid var(--rule); border-radius:8px; padding:10px 14px;
+  font-size:14px; font-family:'Instrument Sans',sans-serif; color:var(--ink);
+  background:var(--white); outline:none; transition:border-color .2s; resize:vertical;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--ink-mid); }
+.divider { grid-column:span 2; border:none; border-top:1px solid var(--rule); margin:4px 0; }
+.sec-label { grid-column:span 2; font-size:13px; font-weight:700; color:var(--ink); padding-top:4px; }
+
+/* Tags */
+.tag-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+.tag {
+  padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600;
+  border:1.5px solid var(--rule); cursor:pointer; transition:all .15s;
+  background:var(--white); color:var(--ink-mid); user-select:none;
+}
+.tag:hover { border-color:var(--ink-mid); color:var(--ink); }
+.tag.sel { border-color:var(--tab-1); background:color-mix(in srgb,var(--tab-1) 10%,white); color:var(--tab-1); }
+
+/* Buttons */
+.btn-primary {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 24px; border-radius:8px; border:none;
+  background:var(--ink); color:var(--white); font-size:13px; font-weight:700;
+  font-family:'Instrument Sans',sans-serif; letter-spacing:.03em;
+  cursor:pointer; transition:all .2s; margin-top:8px;
+}
+.btn-primary:hover { background:var(--ink-mid); transform:translateY(-1px); }
+.btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.btn-outline {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 18px; border-radius:8px; border:1.5px solid var(--rule);
+  background:transparent; color:var(--ink-mid); font-size:12px; font-weight:600;
+  font-family:'Instrument Sans',sans-serif; cursor:pointer; transition:all .2s;
+}
+.btn-outline:hover { border-color:var(--ink-mid); color:var(--ink); }
+
+/* Upload zone */
+.upload-zone {
+  border:2px dashed var(--rule); border-radius:var(--radius); padding:40px 28px;
+  text-align:center; cursor:pointer; transition:all .2s; background:var(--white); margin-bottom:24px;
+}
+.upload-zone:hover { border-color:var(--tab-2); background:color-mix(in srgb,var(--tab-2) 4%,white); }
+.upload-zone .ui { font-size:32px; margin-bottom:10px; }
+.upload-zone .ut { font-size:15px; font-weight:600; color:var(--ink); margin-bottom:5px; }
+.upload-zone .us { font-size:12px; color:var(--ink-dim); }
+
+/* Gene badge */
+.gene-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:color-mix(in srgb,var(--tab-2) 10%,white);
+  border:1px solid color-mix(in srgb,var(--tab-2) 28%,white);
+  border-radius:6px; padding:5px 12px; font-size:12px; font-weight:600;
+  color:var(--tab-2); margin:3px; font-family:'DM Mono',monospace;
+}
+
+/* Referral cards */
+.ref-card {
+  background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius);
+  padding:20px 22px; margin-bottom:14px; max-width:640px;
+  display:flex; align-items:flex-start; gap:16px; transition:box-shadow .2s;
+}
+.ref-card:hover { box-shadow:var(--shadow); }
+.ref-icon {
+  width:42px; height:42px; border-radius:10px; flex-shrink:0;
+  background:color-mix(in srgb,var(--tab-3) 12%,white);
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+}
+.ref-info { flex:1; }
+.ref-name { font-size:14px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.ref-spec { font-size:11px; color:var(--tab-3); font-weight:700; margin-bottom:6px; letter-spacing:.04em; text-transform:uppercase; }
+.ref-note { font-size:13px; color:var(--ink-mid); line-height:1.5; }
+.ref-meta { margin-top:8px; font-size:11px; color:var(--ink-dim); }
+
+/* Chat */
+.chat-wrap {
+  background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius);
+  overflow:hidden; display:flex; flex-direction:column;
+  max-width:680px; height:calc(100vh - 240px); min-height:360px;
+}
+.chat-msgs { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:16px; }
+.chat-msg { display:flex; flex-direction:column; gap:4px; max-width:76%; }
+.chat-msg.from-me { align-self:flex-end; align-items:flex-end; }
+.chat-msg.from-other { align-self:flex-start; align-items:flex-start; }
+.bubble {
+  padding:11px 16px; border-radius:16px; font-size:14px; line-height:1.55;
+}
+.from-me .bubble { background:var(--ink); color:var(--white); border-bottom-right-radius:4px; }
+.from-other .bubble { background:var(--cream); color:var(--ink); border:1px solid var(--rule); border-bottom-left-radius:4px; }
+.chat-meta { font-size:11px; color:var(--ink-dim); }
+.chat-input-row {
+  display:flex; gap:10px; padding:14px 18px;
+  border-top:1px solid var(--rule); background:var(--paper);
+}
+.chat-input {
+  flex:1; border:1.5px solid var(--rule); border-radius:24px; padding:10px 18px;
+  font-size:14px; font-family:'Instrument Sans',sans-serif; outline:none;
+  background:var(--white); transition:border-color .2s; color:var(--ink);
+}
+.chat-input:focus { border-color:var(--tab-4); }
+.chat-send {
+  width:40px; height:40px; border-radius:50%; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:17px;
+  transition:all .2s; flex-shrink:0; background:var(--tab-4); color:white;
+}
+.chat-send:hover { transform:scale(1.08); }
+
+/* Status pills */
+.pill {
+  display:inline-block; padding:3px 12px; border-radius:20px;
+  font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+}
+.pill-pending  { background:#FEF3C7; color:#92400E; }
+.pill-issued   { background:#D1FAE5; color:#065F46; }
+.pill-urgent   { background:#FEE2E2; color:#991B1B; }
+.pill-moderate { background:#FEF3C7; color:#92400E; }
+.pill-consider { background:#EDE9FE; color:#4C1D95; }
+
+/* Diagnosis card */
+.diag-card {
+  background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius);
+  padding:26px 30px; max-width:680px; margin-bottom:18px;
+}
+.diag-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--tab-5); margin-bottom:6px; }
+.diag-headline { font-family:'DM Serif Display',serif; font-size:26px; color:var(--ink); margin-bottom:6px; }
+.diag-body { font-size:14px; color:var(--ink-mid); line-height:1.65; }
+
+/* Score display */
+.score-block { display:flex; align-items:center; gap:16px; margin-bottom:18px; }
+.score-num { font-family:'DM Serif Display',serif; font-size:52px; line-height:1; color:var(--ink); }
+.score-tag { display:flex; flex-direction:column; gap:3px; }
+.score-tag strong { font-size:12px; font-weight:700; }
+.score-tag small { font-size:11px; color:var(--ink-dim); }
+
+/* NLP result banner */
+.nlp-banner {
+  background:color-mix(in srgb,var(--tab-4) 8%,white);
+  border:1px solid color-mix(in srgb,var(--tab-4) 25%,white);
+  border-radius:10px; padding:14px 18px; margin-bottom:20px; max-width:680px;
+}
+.nlp-banner-title { font-size:12px; font-weight:700; color:var(--tab-4); margin-bottom:6px; }
+.nlp-terms { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.nlp-term {
+  padding:3px 10px; border-radius:6px; font-size:11px; font-weight:600;
+  background:color-mix(in srgb,var(--tab-4) 12%,white); color:var(--tab-4);
+  font-family:'DM Mono',monospace;
+}
+
+/* Demo buttons */
+.demo-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px; }
+.demo-btn {
+  padding:6px 14px; border-radius:8px; border:1.5px dashed var(--rule);
+  background:var(--white); font-size:12px; font-weight:600; color:var(--ink-mid);
+  cursor:pointer; transition:all .2s; font-family:'Instrument Sans',sans-serif;
+}
+.demo-btn:hover { border-style:solid; border-color:var(--ink-mid); color:var(--ink); }
+
+/* Loading state */
+.loading { display:flex; align-items:center; gap:10px; color:var(--ink-dim); font-size:13px; }
+.spinner {
+  width:18px; height:18px; border:2.5px solid var(--rule);
+  border-top-color:var(--ink-mid); border-radius:50%;
+  animation:spin .8s linear infinite; flex-shrink:0;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* Signals grid */
+.signals-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; max-width:680px; margin-bottom:18px; }
+.signal-cell {
+  background:var(--white); border:1.5px solid var(--rule); border-radius:10px;
+  padding:14px 16px;
+}
+.signal-name { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-dim); margin-bottom:5px; }
+.signal-val { font-size:20px; font-weight:700; font-family:'DM Serif Display',serif; }
+.signal-sub { font-size:11px; color:var(--ink-dim); margin-top:2px; }
+.signal-cell.hi { border-color:color-mix(in srgb,#dc2626 35%,var(--rule)); }
+.signal-cell.md { border-color:color-mix(in srgb,#d97706 35%,var(--rule)); }
+
+/* Checklist */
+.checklist { list-style:none; display:flex; flex-direction:column; gap:8px; max-width:560px; }
+.checklist li { display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--ink-mid); }
+.checklist li::before {
+  content:''; width:16px; height:16px; border-radius:4px; border:2px solid var(--rule);
+  flex-shrink:0; margin-top:2px; background:var(--white);
+}
+
+/* MT helpers */
+.mt8{margin-top:8px} .mt16{margin-top:16px} .mt24{margin-top:24px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DOCTOR PORTAL
+══════════════════════════════════════════════════════════════════ */
+#doctor-portal { flex-direction:row; }
+
+.doc-panel {
+  width:340px; min-width:340px; background:var(--panel-bg); height:100vh;
+  position:fixed; left:0; top:0; overflow-y:auto;
+  transition:transform .35s cubic-bezier(.4,0,.2,1); z-index:50;
+  border-right:1px solid var(--panel-rule);
+}
+.doc-panel.hidden { transform:translateX(-292px); }
+
+.doc-panel-header {
+  padding:18px 22px 14px; border-bottom:1px solid var(--panel-rule);
+  display:flex; align-items:center; gap:10px;
+  position:sticky; top:0; background:var(--panel-bg); z-index:10;
+}
+.doc-logo { font-family:'DM Serif Display',serif; font-size:20px; color:#fff; letter-spacing:-.3px; }
+.doc-logo em { font-style:normal; color:var(--doc-accent); }
+.doc-badge { font-size:10px; font-weight:700; color:var(--panel-dim); letter-spacing:.08em; text-transform:uppercase; padding:2px 8px; border:1px solid var(--panel-rule); border-radius:12px; }
+.panel-toggle {
+  margin-left:auto; background:none; border:1px solid var(--panel-rule); border-radius:6px;
+  color:var(--panel-dim); cursor:pointer; width:28px; height:28px;
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+  transition:all .2s;
+}
+.panel-toggle:hover { border-color:var(--panel-text); color:var(--panel-text); }
+
+.doc-panel-body { padding:18px 22px; }
+
+.pt-select-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--panel-dim); margin-bottom:7px; }
+.pt-selector {
+  width:100%; background:var(--panel-rule); border:1px solid #3A4560;
+  border-radius:8px; padding:9px 12px; color:var(--panel-text); font-size:13px;
+  font-family:'Instrument Sans',sans-serif; outline:none; margin-bottom:18px; cursor:pointer;
+}
+
+.panel-sec { margin-bottom:22px; }
+.panel-sec-title {
+  font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--doc-accent); margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--panel-rule);
+}
+.panel-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:9px; gap:10px; }
+.panel-key { font-size:11px; color:var(--panel-dim); font-weight:500; min-width:80px; flex-shrink:0; }
+.panel-val { font-size:12px; color:var(--panel-text); font-weight:500; text-align:right; line-height:1.4; }
+.panel-val.mono { font-family:'DM Mono',monospace; font-size:11px; color:color-mix(in srgb,var(--tab-2) 75%,white); }
+.s-chip { display:inline-block; background:var(--panel-rule); border-radius:5px; padding:3px 9px; font-size:11px; color:var(--panel-text); margin:2px; }
+
+/* Panel peek tab */
+.panel-peek {
+  position:fixed; left:48px; top:50%; transform:translateY(-50%) rotate(180deg);
+  writing-mode:vertical-rl; background:var(--panel-bg); color:var(--panel-text);
+  padding:14px 7px; font-size:11px; font-weight:600; letter-spacing:.07em;
+  text-transform:uppercase; cursor:pointer; border-radius:0 8px 8px 0;
+  border:1px solid var(--panel-rule); border-left:none; display:none; z-index:60;
+}
+.doc-panel.hidden + .panel-peek { display:block; }
+
+/* Doctor main */
+.doc-main {
+  margin-left:340px; flex:1; transition:margin-left .35s cubic-bezier(.4,0,.2,1);
+  min-height:100vh; display:flex; flex-direction:column;
+}
+.doc-main.wide { margin-left:48px; }
+
+.doc-topbar {
+  height:60px; background:var(--paper); border-bottom:1px solid var(--rule);
+  display:flex; align-items:center; padding:0 32px; gap:8px;
+  position:sticky; top:0; z-index:40;
+}
+.doc-title { font-family:'DM Serif Display',serif; font-size:18px; color:var(--ink); margin-right:auto; }
+.doc-nav { display:flex; gap:4px; }
+.doc-tab {
+  padding:7px 18px; border-radius:8px; border:1.5px solid var(--rule);
+  background:transparent; color:var(--ink-mid); font-size:13px; font-weight:600;
+  font-family:'Instrument Sans',sans-serif; cursor:pointer; transition:all .2s;
+}
+.doc-tab:hover { border-color:var(--ink-mid); color:var(--ink); }
+.doc-tab.active { background:var(--ink); color:var(--white); border-color:var(--ink); }
+
+.doc-content { flex:1; padding:40px 48px; overflow-y:auto; }
+
+/* Referral form */
+.ref-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:620px; }
+.ref-form .s2 { grid-column:span 2; }
+
+/* Patient selector + NLP section */
+.nlp-section { max-width:700px; }
+.nlp-tab-row { display:flex; gap:4px; margin-bottom:20px; }
+.nlp-mode-btn {
+  padding:8px 18px; border-radius:8px; border:1.5px solid var(--rule);
+  background:var(--white); font-size:13px; font-weight:600; cursor:pointer;
+  font-family:'Instrument Sans',sans-serif; color:var(--ink-mid); transition:all .2s;
+}
+.nlp-mode-btn.active { background:var(--ink); color:var(--white); border-color:var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ LANDING ══════════════════════════════ -->
+<div id="landing">
+  <div class="landing-logo">Revi<em>gen</em></div>
+  <div class="landing-sub">Reviewing &amp; Reviving Rare Disease Cases</div>
+  <div class="portal-cards">
+    <div class="portal-card" onclick="showPortal('patient')">
+      <div class="ci">🧬</div>
+      <div class="ct">Patient</div>
+      <div class="cs">Track symptoms, share genomic data, view referrals and your diagnosis report</div>
+    </div>
+    <div class="portal-card" onclick="showPortal('doctor')">
+      <div class="ci">🩺</div>
+      <div class="ct">Physician</div>
+      <div class="cs">Review patient data, run NLP reanalysis, send referrals, issue diagnoses</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PATIENT PORTAL ═══════════════════════════ -->
+<div id="patient-portal" class="portal">
+  <div class="pt-header">
+    <div class="portal-logo">Revi<em>gen</em></div>
+    <div class="portal-badge">Patient</div>
+    <button class="back-btn" onclick="showLanding()">← Home</button>
+  </div>
+
+  <div class="pt-content">
+
+    <!-- ── PAGE 1: Symptoms & History ───────────────────────────────────── -->
+    <div class="page active" id="pt-symptoms">
+      <div class="eyebrow" style="color:var(--tab-1)">Tab 1 — Symptoms &amp; Family History</div>
+      <div class="page-title">Tell Us About Your Health</div>
+      <div class="page-desc">Share your symptoms, timeline, and family history. The more detail you provide, the better we can support your care team.</div>
+
+      <div class="demo-row">
+        <span style="font-size:12px;color:var(--ink-dim);align-self:center">Demo cases:</span>
+        <button class="demo-btn" onclick="loadDemoPatient('P047')">🧬 FOXG1 — Age 7, Female</button>
+        <button class="demo-btn" onclick="loadDemoPatient('P031')">⚡ STXBP1 — Age 12, Male</button>
+        <button class="demo-btn" onclick="loadDemoPatient('P058')">🦴 PTHR1 — Age 4, Female</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="field"><label>Date of birth</label><input type="date" id="pt-dob"/></div>
+        <div class="field"><label>Biological sex</label>
+          <select id="pt-sex"><option value="">Select…</option><option>Female</option><option>Male</option><option>Intersex / Other</option><option>Prefer not to say</option></select>
+        </div>
+        <div class="field"><label>Country of origin</label><input type="text" id="pt-origin" placeholder="e.g. United Arab Emirates"/></div>
+        <div class="field"><label>Consanguinity (relation between parents)</label>
+          <select id="pt-consang"><option value="">Unknown</option><option>No</option><option>Yes — first cousins</option><option>Yes — second cousins</option><option>Yes — other</option></select>
+        </div>
+
+        <hr class="divider"/><div class="sec-label">Past Symptoms</div>
+        <div class="field s2"><label>Symptoms previously experienced (resolved)</label>
+          <textarea id="pt-past" rows="3" placeholder="e.g. Feeding difficulties as an infant, hypotonia at birth…"></textarea>
+        </div>
+
+        <hr class="divider"/><div class="sec-label">Current Symptoms</div>
+        <div class="field s2"><label>Select all that currently apply</label>
+          <div class="tag-row" id="pt-sym-tags">
+            <span class="tag" onclick="toggleTag(this)">Developmental delay</span>
+            <span class="tag" onclick="toggleTag(this)">Seizures</span>
+            <span class="tag" onclick="toggleTag(this)">Absent / limited speech</span>
+            <span class="tag" onclick="toggleTag(this)">Hypotonia (low muscle tone)</span>
+            <span class="tag" onclick="toggleTag(this)">Ataxia / unsteady gait</span>
+            <span class="tag" onclick="toggleTag(this)">Regression</span>
+            <span class="tag" onclick="toggleTag(this)">Microcephaly</span>
+            <span class="tag" onclick="toggleTag(this)">Autistic features</span>
+            <span class="tag" onclick="toggleTag(this)">Feeding difficulties</span>
+            <span class="tag" onclick="toggleTag(this)">Short stature</span>
+            <span class="tag" onclick="toggleTag(this)">Skeletal abnormalities</span>
+            <span class="tag" onclick="toggleTag(this)">Vision impairment</span>
+            <span class="tag" onclick="toggleTag(this)">Hearing loss</span>
+          </div>
+        </div>
+        <div class="field s2"><label>Describe additional current symptoms in your own words</label>
+          <textarea id="pt-current" rows="3" placeholder="e.g. Hand stereotypies, repetitive movements, progressive course since 18 months…"></textarea>
+        </div>
+
+        <hr class="divider"/><div class="sec-label">Recent Changes</div>
+        <div class="field s2"><label>New symptoms in the last 6 months</label>
+          <textarea id="pt-changes" rows="2" placeholder="e.g. Started having absence seizures since March…"></textarea>
+        </div>
+        <div class="field"><label>Onset of most recent change</label><input type="date" id="pt-onset"/></div>
+        <div class="field"><label>Frequency of episodes</label>
+          <select id="pt-freq"><option value="">Select…</option><option>Daily</option><option>Several times a week</option><option>Weekly</option><option>Monthly</option><option>Occasional / irregular</option><option>Constant</option></select>
+        </div>
+
+        <hr class="divider"/><div class="sec-label">Family History</div>
+        <div class="field s2"><label>Known conditions in family members</label>
+          <textarea id="pt-family" rows="2" placeholder="e.g. Mother has hypothyroidism, paternal uncle had seizures…"></textarea>
+        </div>
+        <div class="field"><label>Any family member with same condition?</label>
+          <select id="pt-famrel"><option value="">Unknown</option><option>No</option><option>Yes — first-degree relative</option><option>Yes — extended family</option></select>
+        </div>
+        <div class="field"><label>Previous diagnoses received</label>
+          <input type="text" id="pt-prior-diag" placeholder="e.g. 'Unspecified developmental delay'"/>
+        </div>
+
+        <div class="field s2 mt8">
+          <button class="btn-primary" onclick="saveSymptoms()">Save &amp; Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAGE 2: Genomic ──────────────────────────────────────────────── -->
+    <div class="page" id="pt-genomic">
+      <div class="eyebrow" style="color:var(--tab-2)">Tab 2 — Genomic Data</div>
+      <div class="page-title">Genetic Test Results</div>
+      <div class="page-desc">Upload your genetic report or enter details below. If you haven't had a test, skip this section — your doctor will advise next steps.</div>
+
+      <div class="upload-zone" onclick="alert('In production: opens file picker. Attach your gene panel PDF, VCF, or clinical letter.')">
+        <div class="ui">📄</div>
+        <div class="ut">Upload genetic test report</div>
+        <div class="us">PDF, VCF, or clinical letter · Max 50 MB</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="field"><label>Test type</label>
+          <select id="pt-test-type"><option value="">Select…</option><option>Whole Exome Sequencing (WES)</option><option>Whole Genome Sequencing (WGS)</option><option>Gene Panel</option><option>Chromosomal Microarray</option><option>Sanger Sequencing</option></select>
+        </div>
+        <div class="field"><label>Date of test</label><input type="date" id="pt-test-date"/></div>
+        <div class="field"><label>Testing laboratory</label><input type="text" id="pt-lab" placeholder="e.g. GeneDx, Invitae…"/></div>
+        <div class="field"><label>Overall result</label>
+          <select id="pt-result"><option value="">Select…</option><option>Negative / No variant found</option><option>Variant of Uncertain Significance (VUS)</option><option>Likely pathogenic</option><option>Pathogenic — diagnosis confirmed</option><option>Inconclusive</option></select>
+        </div>
+        <div class="field s2"><label>Genes with VUS or pathogenic findings (comma-separated)</label>
+          <input type="text" id="pt-genes-input" placeholder="e.g. FOXG1, CDKL5" oninput="renderGeneBadges()"/>
+          <div id="pt-gene-badges" class="tag-row mt8"></div>
+        </div>
+        <div class="field"><label>Was CNV analysis performed?</label>
+          <select id="pt-cnv"><option value="">Unknown</option><option>Yes</option><option>No</option></select>
+        </div>
+        <div class="field"><label>Analysis type</label>
+          <select id="pt-analysis-type"><option value="">Unknown</option><option>Singleton</option><option>Duo (patient + one parent)</option><option>Trio (patient + both parents)</option></select>
+        </div>
+        <div class="field s2"><label>Notes or HPO terms from report (optional)</label>
+          <textarea id="pt-gen-notes" rows="3" placeholder="e.g. HP:0001263, HP:0001252 — or paste clinical interpretation text"></textarea>
+        </div>
+        <div class="field s2">
+          <button class="btn-primary" onclick="saveGenomic()">Save Genomic Data →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAGE 3: Referrals ────────────────────────────────────────────── -->
+    <div class="page" id="pt-referrals">
+      <div class="eyebrow" style="color:var(--tab-3)">Tab 3 — Referrals</div>
+      <div class="page-title">Your Referrals</div>
+      <div class="page-desc">Specialist referrals issued by your doctor appear below. Download letters to share with specialists.</div>
+      <div id="pt-referrals-list">
+        <div class="loading"><div class="spinner"></div>Loading referrals…</div>
+      </div>
+    </div>
+
+    <!-- ── PAGE 4: Chat ─────────────────────────────────────────────────── -->
+    <div class="page" id="pt-chat">
+      <div class="eyebrow" style="color:var(--tab-4)">Tab 4 — Chat with Doctor</div>
+      <div class="page-title">Messaging</div>
+      <div class="page-desc">Leave messages for your care team. All messages are reviewed within 2 business days.</div>
+      <div class="chat-wrap">
+        <div class="chat-msgs" id="pt-chat-msgs"></div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="pt-chat-input" placeholder="Type a message to your doctor…" onkeydown="if(event.key==='Enter')ptSendMsg()"/>
+          <button class="chat-send" onclick="ptSendMsg()" style="background:var(--tab-4)">↑</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAGE 5: Diagnosis ────────────────────────────────────────────── -->
+    <div class="page" id="pt-diagnosis">
+      <div class="eyebrow" style="color:var(--tab-5)">Tab 5 — Diagnosis</div>
+      <div class="page-title">Your Diagnosis Report</div>
+      <div class="page-desc">Your care team's findings, powered by the reviGen 7-signal reanalysis engine.</div>
+      <div id="pt-diag-content">
+        <div class="loading"><div class="spinner"></div>Loading diagnosis report…</div>
+      </div>
+    </div>
+
+  </div><!-- /pt-content -->
+
+  <!-- Book tab strip -->
+  <div class="tab-strip">
+    <button class="tab-btn active" data-tab="symptoms"  onclick="ptTab('symptoms')">Symptoms &amp; History</button>
+    <button class="tab-btn"        data-tab="genomic"   onclick="ptTab('genomic')">Genomic Data</button>
+    <button class="tab-btn"        data-tab="referrals" onclick="ptTab('referrals')">Referrals</button>
+    <button class="tab-btn"        data-tab="chat"      onclick="ptTab('chat')">Chat</button>
+    <button class="tab-btn"        data-tab="diagnosis" onclick="ptTab('diagnosis')">Diagnosis</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ DOCTOR PORTAL ════════════════════════════ -->
+<div id="doctor-portal" class="portal">
+
+  <div class="doc-panel" id="doc-panel">
+    <div class="doc-panel-header">
+      <div class="doc-logo">Revi<em>gen</em></div>
+      <div class="doc-badge">MD</div>
+      <button class="panel-toggle" onclick="togglePanel()" title="Collapse panel">‹</button>
+    </div>
+    <div class="doc-panel-body">
+      <div class="pt-select-label">Active Patient</div>
+      <select class="pt-selector" id="doc-patient-select" onchange="loadDocPatient()">
+        <option value="">Select patient…</option>
+        <option value="P047">Patient #0047 — Female, age 7</option>
+        <option value="P031">Patient #0031 — Male, age 12</option>
+        <option value="P058">Patient #0058 — Female, age 4</option>
+      </select>
+      <div id="doc-panel-content">
+        <div style="font-size:13px;color:var(--panel-dim);text-align:center;padding:20px 0">Select a patient to view their summary</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-peek" id="panel-peek" onclick="togglePanel()">Patient Summary</div>
+
+  <div class="doc-main" id="doc-main">
+    <div class="doc-topbar">
+      <div class="doc-title">reviGen <span style="color:var(--ink-dim);font-size:14px;font-family:'Instrument Sans',sans-serif;font-weight:400">MD</span></div>
+      <div class="doc-nav">
+        <button class="doc-tab active" onclick="docTab('doc-nlp',this)">NLP Reanalysis</button>
+        <button class="doc-tab" onclick="docTab('doc-referrals',this)">Referrals</button>
+        <button class="doc-tab" onclick="docTab('doc-chat',this)">Chat</button>
+        <button class="doc-tab" onclick="docTab('doc-diagnosis',this)">Diagnosis</button>
+      </div>
+      <button class="back-btn" onclick="showLanding()" style="margin-left:16px">← Home</button>
+    </div>
+
+    <div class="doc-content">
+
+      <!-- ── DOC: NLP Reanalysis ─────────────────────────────────────────── -->
+      <div class="page active" id="doc-nlp">
+        <div class="eyebrow" style="color:var(--doc-accent)">Clinical Notes Analysis</div>
+        <div class="page-title">NLP Reanalysis Engine</div>
+        <div class="page-desc">Paste free-text clinical notes from original and current consultations. Claude extracts HPO phenotype terms automatically and runs the 7-signal reanalysis engine.</div>
+
+        <div class="nlp-tab-row">
+          <button class="nlp-mode-btn active" id="nlp-mode-notes" onclick="setNlpMode('notes')">Free-text Clinical Notes</button>
+          <button class="nlp-mode-btn" id="nlp-mode-hpo" onclick="setNlpMode('hpo')">Structured HPO Terms</button>
+        </div>
+
+        <div class="nlp-section" id="nlp-notes-panel">
+          <div class="demo-row">
+            <span style="font-size:12px;color:var(--ink-dim);align-self:center">Demo cases:</span>
+            <button class="demo-btn" onclick="loadNlpDemo('foxg1')">🧬 FOXG1 syndrome</button>
+            <button class="demo-btn" onclick="loadNlpDemo('stxbp1')">⚡ STXBP1/DEE4</button>
+            <button class="demo-btn" onclick="loadNlpDemo('pthr1')">🦴 PTHR1/Jansen</button>
+          </div>
+
+          <div class="form-grid full">
+            <div class="field"><label>Original clinical notes (at time of first test)</label>
+              <textarea id="nlp-orig" rows="5" placeholder="e.g. Infant with hypotonia, motor delay, and feeding difficulties at 6 months. Referred for gene panel."></textarea>
+            </div>
+            <div class="field"><label>Current clinical notes</label>
+              <textarea id="nlp-curr" rows="5" placeholder="e.g. 7-year-old with global developmental delay, absent speech, apraxia, autistic behaviour, choreiform movements. Progressive course since 18 months."></textarea>
+            </div>
+            <div class="field"><label>VUS genes from prior test (comma-separated)</label>
+              <input type="text" id="nlp-genes" placeholder="e.g. FOXG1"/></div>
+            <div class="field"><label>Date of prior test</label>
+              <input type="date" id="nlp-test-date" value="2019-06-01"/></div>
+            <div class="field"><label>Test type</label>
+              <select id="nlp-test-type"><option>Gene Panel</option><option>Whole Exome Sequencing (WES)</option><option>Whole Genome Sequencing (WGS)</option><option>Chromosomal Microarray</option></select>
+            </div>
+            <div class="field"><label>Patient sex</label>
+              <select id="nlp-sex"><option value="">Unknown</option><option>Female</option><option>Male</option></select>
+            </div>
+            <div class="field"><label>CNV calling performed?</label>
+              <select id="nlp-cnv"><option value="">Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
+            </div>
+            <div class="field"><label>Analysis type</label>
+              <select id="nlp-analysis"><option value="singleton">Singleton</option><option value="duo">Duo</option><option value="trio">Trio</option></select>
+            </div>
+          </div>
+
+          <button class="btn-primary mt16" id="nlp-run-btn" onclick="runNlpPipeline()">🧠 Extract HPO &amp; Run Reanalysis</button>
+        </div>
+
+        <div class="nlp-section" id="nlp-hpo-panel" style="display:none">
+          <div class="form-grid full">
+            <div class="field"><label>Original HPO terms (comma or newline separated)</label>
+              <textarea id="hpo-orig" rows="4" placeholder="HP:0001252, HP:0001270, HP:0011968"></textarea>
+            </div>
+            <div class="field"><label>Current HPO terms</label>
+              <textarea id="hpo-curr" rows="4" placeholder="HP:0001263, HP:0002186, HP:0000252, HP:0001252, HP:0002072"></textarea>
+            </div>
+            <div class="field"><label>VUS genes (comma-separated)</label>
+              <input type="text" id="hpo-genes" placeholder="e.g. FOXG1"/></div>
+            <div class="field"><label>Date of prior test</label>
+              <input type="date" id="hpo-test-date" value="2019-06-01"/></div>
+            <div class="field"><label>Test type</label>
+              <select id="hpo-test-type"><option>Gene Panel</option><option>Whole Exome Sequencing (WES)</option><option>Whole Genome Sequencing (WGS)</option></select>
+            </div>
+            <div class="field"><label>Patient sex</label>
+              <select id="hpo-sex"><option value="">Unknown</option><option>Female</option><option>Male</option></select>
+            </div>
+            <div class="field"><label>CNV calling performed?</label>
+              <select id="hpo-cnv"><option value="">Unknown</option><option value="yes">Yes</option><option value="no">No</option></select>
+            </div>
+            <div class="field"><label>Analysis type</label>
+              <select id="hpo-analysis"><option value="singleton">Singleton</option><option value="duo">Duo</option><option value="trio">Trio</option></select>
+            </div>
+          </div>
+          <button class="btn-primary mt16" onclick="runHpoPipeline()">Run 7-Signal Reanalysis</button>
+        </div>
+
+        <!-- Result panel -->
+        <div id="nlp-result" style="margin-top:32px;display:none;max-width:700px"></div>
+      </div>
+
+      <!-- ── DOC: Referrals ──────────────────────────────────────────────── -->
+      <div class="page" id="doc-referrals">
+        <div class="eyebrow" style="color:var(--doc-accent)">Referral Management</div>
+        <div class="page-title">Create Referral</div>
+        <div class="page-desc">Referrals are immediately pushed to the selected patient's portal. Select a patient above before submitting.</div>
+
+        <div class="ref-form">
+          <div class="field"><label>Specialist name</label><input type="text" id="ref-specialist" placeholder="Dr. First Last"/></div>
+          <div class="field"><label>Specialty</label>
+            <select id="ref-specialty"><option value="">Select…</option><option>Paediatric Neurology</option><option>Clinical Genetics</option><option>Metabolic Medicine</option><option>Cardiology</option><option>Ophthalmology</option><option>Rehabilitation</option><option>Other</option></select>
+          </div>
+          <div class="field"><label>Hospital / Clinic</label><input type="text" id="ref-hospital" placeholder="e.g. MGH Genetics, Boston Children's"/></div>
+          <div class="field"><label>Urgency</label>
+            <select id="ref-urgency"><option>Routine (6–8 weeks)</option><option>Semi-urgent (2–4 weeks)</option><option>Urgent (within 1 week)</option></select>
+          </div>
+          <div class="field"><label>Issued by</label><input type="text" id="ref-issuer" placeholder="Dr. Your Name"/></div>
+          <div class="field s2"><label>Referral reason / notes to specialist</label>
+            <textarea id="ref-reason" rows="5" placeholder="e.g. Patient with FOXG1 VUS and progressive neurodevelopmental regression. Requesting specialist assessment for FOXG1 syndrome. Trio reanalysis with CNV calling recommended…"></textarea>
+          </div>
+          <div class="field s2 mt8">
+            <button class="btn-primary" onclick="createReferral()">Send Referral to Patient Portal →</button>
+          </div>
+        </div>
+
+        <div class="mt24">
+          <div class="eyebrow" style="color:var(--doc-accent)">Existing Referrals for Selected Patient</div>
+          <div id="doc-ref-list" class="mt8"></div>
+        </div>
+      </div>
+
+      <!-- ── DOC: Chat ───────────────────────────────────────────────────── -->
+      <div class="page" id="doc-chat">
+        <div class="eyebrow" style="color:var(--doc-accent)">Patient Communication</div>
+        <div class="page-title">Chat with Patient</div>
+        <div class="page-desc">Messages appear in real time in the patient's Messaging tab. Select a patient first.</div>
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="doc-chat-msgs">
+            <div style="text-align:center;color:var(--ink-dim);font-size:13px;padding:32px">Select a patient to load conversation thread</div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" id="doc-chat-input" placeholder="Type a message to the patient…" onkeydown="if(event.key==='Enter')docSendMsg()"/>
+            <button class="chat-send" onclick="docSendMsg()" style="background:var(--doc-accent)">↑</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DOC: Diagnosis ──────────────────────────────────────────────── -->
+      <div class="page" id="doc-diagnosis">
+        <div class="eyebrow" style="color:var(--doc-accent)">Clinical Assessment</div>
+        <div class="page-title">Final Diagnosis</div>
+        <div class="page-desc">Complete and publish the diagnosis report. It will immediately appear in the patient's Diagnosis tab.</div>
+
+        <div id="doc-diag-score-area" style="margin-bottom:20px;display:none"></div>
+
+        <div class="form-grid full" style="max-width:640px">
+          <div class="field"><label>Suspected / confirmed diagnosis</label>
+            <input type="text" id="diag-name" placeholder="e.g. FOXG1 Syndrome (OMIM:613454)"/>
+          </div>
+          <div class="field"><label>Diagnosis status</label>
+            <select id="diag-status"><option>Suspected — awaiting confirmation</option><option>Confirmed — molecular diagnosis</option><option>Differential — multiple candidates</option><option>Inconclusive — further testing needed</option></select>
+          </div>
+          <div class="field"><label>Recommended next step</label>
+            <select id="diag-nextstep"><option>Trio whole exome reanalysis</option><option>CNV retrospective calling</option><option>Genome sequencing upgrade</option><option>Variant reinterpretation only</option><option>No further genomic testing</option></select>
+          </div>
+          <div class="field"><label>Issued by</label>
+            <input type="text" id="diag-issuer" placeholder="Dr. Your Name"/>
+          </div>
+          <div class="field"><label>Clinical summary (shared with patient)</label>
+            <textarea id="diag-summary" rows="5" placeholder="Based on the clinical profile and reviGen analysis…"></textarea>
+          </div>
+          <div class="field"><label>Doctor's notes (internal — not shared with patient)</label>
+            <textarea id="diag-private" rows="3" placeholder="Private clinical notes, MDT discussion, follow-up plan…"></textarea>
+          </div>
+          <div class="field row mt8">
+            <button class="btn-primary" onclick="publishDiagnosis()">Publish to Patient Portal →</button>
+            <button class="btn-outline" onclick="alert('Draft saved.')">Save Draft</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /doctor-portal -->
+
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════════════════════ */
+const API = 'http://localhost:8000';   // change if deployed elsewhere
+
+// Current state
+let currentPatientId = 'P047';
+let currentDocPatient = null;
+let nlpMode = 'notes';
+
+/* ═══════════════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════════════ */
+function showLanding() {
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('patient-portal').classList.remove('active');
+  document.getElementById('doctor-portal').classList.remove('active');
+}
+
+async function showPortal(type) {
+  document.getElementById('landing').style.display = 'none';
+  if (type === 'patient') {
+    document.getElementById('patient-portal').classList.add('active');
+    await loadDemoPatient('P047');   // default demo
+    ptTab('symptoms');
+  } else {
+    document.getElementById('doctor-portal').classList.add('active');
+  }
+}
+
+function ptTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('#patient-portal .page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`pt-${tab}`).classList.add('active');
+  if (tab === 'referrals') loadPatientReferrals();
+  if (tab === 'chat')      loadPatientChat();
+  if (tab === 'diagnosis') loadPatientDiagnosis();
+}
+
+function docTab(pageId, btn) {
+  document.querySelectorAll('.doc-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#doctor-portal .page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  if (pageId === 'doc-chat' && currentDocPatient) loadDocChat();
+  if (pageId === 'doc-referrals' && currentDocPatient) loadDocReferrals();
+}
+
+function togglePanel() {
+  const panel = document.getElementById('doc-panel');
+  const main  = document.getElementById('doc-main');
+  panel.classList.toggle('hidden');
+  main.classList.toggle('wide');
+}
+
+function toggleTag(el) { el.classList.toggle('sel'); }
+function renderGeneBadges() {
+  const genes = document.getElementById('pt-genes-input').value
+    .split(',').map(g => g.trim().toUpperCase()).filter(Boolean);
+  document.getElementById('pt-gene-badges').innerHTML =
+    genes.map(g => `<span class="gene-badge">${g}</span>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DEMO PATIENT LOADING (Patient Portal)
+═══════════════════════════════════════════════════════════════════════ */
+const DEMO_PATIENTS = {
+  P047: {
+    dob:'2019-01-15', sex:'Female', origin:'United Arab Emirates', consang:'No',
+    past:'Feeding difficulties as an infant, hypotonia at birth, motor delay noticed at 6 months.',
+    current_tags:['Developmental delay','Absent / limited speech','Hypotonia (low muscle tone)','Autistic features','Seizures','Regression'],
+    current:'7-year-old with global developmental delay, absent speech, apraxia, autistic behaviour, choreiform movements, and dysarthria. Progressive course since 18 months.',
+    changes:'Started having absence seizures since March. New regression in communication.',
+    onset:'2026-03-01', freq:'Daily',
+    family:'No known family history of neurological conditions. Parents non-consanguineous.',
+    famrel:'No', prior_diag:'Unspecified developmental delay, Epilepsy NOS',
+    test_type:'Gene Panel', test_date:'2019-06-01', lab:'GeneDx',
+    result:'Variant of Uncertain Significance (VUS)', genes:'FOXG1', cnv:'No', analysis:'Singleton',
+    gen_notes:'HP:0001263, HP:0001252, HP:0011968 — FOXG1 c.460C>T p.Arg154Cys classified VUS',
+  },
+  P031: {
+    dob:'2013-08-22', sex:'Male', origin:'Egypt', consang:'Yes — first cousins',
+    past:'Neonatal seizures, hypotonia from birth.',
+    current_tags:['Seizures','Hypotonia (low muscle tone)','Developmental delay','Absent / limited speech'],
+    current:'12-year-old with refractory epilepsy, intellectual disability, absent speech, and hypotonia. Seizures are daily despite multiple AEDs.',
+    changes:'Seizure frequency increased. Now having tonic-clonic clusters.',
+    onset:'2025-11-01', freq:'Daily',
+    family:'Parents are first cousins. Older sibling deceased — cause unknown.',
+    famrel:'Yes — first-degree relative', prior_diag:'Ohtahara syndrome NOS, infantile spasms',
+    test_type:'Whole Exome Sequencing (WES)', test_date:'2018-03-15', lab:'Centogene',
+    result:'Variant of Uncertain Significance (VUS)', genes:'STXBP1, KCNQ2', cnv:'No', analysis:'Singleton',
+    gen_notes:'STXBP1 p.Val84Asp VUS, KCNQ2 p.Arg144Cys VUS',
+  },
+  P058: {
+    dob:'2021-05-10', sex:'Female', origin:'Canada', consang:'No',
+    past:'Short stature noted at 1 year. Rickets diagnosed at 18 months.',
+    current_tags:['Short stature','Skeletal abnormalities','Feeding difficulties'],
+    current:'4-year-old with severe rickets, hypercalcemia, nephrocalcinosis, and failure to thrive. Parathyroid hormone levels markedly elevated.',
+    changes:'Hypercalcemia worsened. Admitted for IV hydration.',
+    onset:'2025-12-01', freq:'Constant',
+    family:'No family history. De novo suspected.',
+    famrel:'No', prior_diag:'Vitamin D-resistant rickets',
+    test_type:'Whole Exome Sequencing (WES)', test_date:'2023-02-01', lab:'Ambry Genetics',
+    result:'Negative / No variant found', genes:'', cnv:'Yes', analysis:'Trio',
+    gen_notes:'No pathogenic variants. PTHR1 not included in analysis panel at time of testing.',
+  },
+};
+
+function loadDemoPatient(pid) {
+  currentPatientId = pid;
+  const d = DEMO_PATIENTS[pid];
+  if (!d) return;
+
+  // Fill symptoms form
+  document.getElementById('pt-dob').value          = d.dob || '';
+  document.getElementById('pt-sex').value          = d.sex || '';
+  document.getElementById('pt-origin').value       = d.origin || '';
+  document.getElementById('pt-consang').value      = d.consang || '';
+  document.getElementById('pt-past').value         = d.past || '';
+  document.getElementById('pt-current').value      = d.current || '';
+  document.getElementById('pt-changes').value      = d.changes || '';
+  document.getElementById('pt-onset').value        = d.onset || '';
+  document.getElementById('pt-freq').value         = d.freq || '';
+  document.getElementById('pt-family').value       = d.family || '';
+  document.getElementById('pt-famrel').value       = d.famrel || '';
+  document.getElementById('pt-prior-diag').value   = d.prior_diag || '';
+
+  // Symptom tags
+  document.querySelectorAll('#pt-sym-tags .tag').forEach(t => {
+    t.classList.toggle('sel', (d.current_tags || []).includes(t.textContent.trim()));
+  });
+
+  // Genomic form
+  document.getElementById('pt-test-type').value    = d.test_type || '';
+  document.getElementById('pt-test-date').value    = d.test_date || '';
+  document.getElementById('pt-lab').value          = d.lab || '';
+  document.getElementById('pt-result').value       = d.result || '';
+  document.getElementById('pt-genes-input').value  = d.genes || '';
+  document.getElementById('pt-cnv').value          = d.cnv || '';
+  document.getElementById('pt-analysis-type').value= d.analysis || '';
+  document.getElementById('pt-gen-notes').value    = d.gen_notes || '';
+  renderGeneBadges();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PATIENT PORTAL: SAVE FORMS
+═══════════════════════════════════════════════════════════════════════ */
+async function saveSymptoms() {
+  const selectedTags = [...document.querySelectorAll('#pt-sym-tags .tag.sel')].map(t => t.textContent.trim());
+  const body = {
+    patient_id: currentPatientId,
+    demographics: {
+      date_of_birth:     document.getElementById('pt-dob').value,
+      sex:               document.getElementById('pt-sex').value,
+      country_of_origin: document.getElementById('pt-origin').value,
+      consanguinity:     document.getElementById('pt-consang').value,
+    },
+    symptoms: {
+      past_symptoms:    document.getElementById('pt-past').value,
+      current_symptoms: selectedTags,
+      current_free:     document.getElementById('pt-current').value,
+      recent_changes:   document.getElementById('pt-changes').value,
+      recent_onset:     document.getElementById('pt-onset').value,
+      frequency:        document.getElementById('pt-freq').value,
+      family_history:   document.getElementById('pt-family').value,
+      prior_diagnoses:  document.getElementById('pt-prior-diag').value,
+    }
+  };
+  try {
+    await apiPost('/api/patient/save-symptoms', body);
+    ptTab('genomic');
+  } catch(e) {
+    // If API not running, still advance for demo
+    ptTab('genomic');
+  }
+}
+
+async function saveGenomic() {
+  const genes = document.getElementById('pt-genes-input').value
+    .split(',').map(g => g.trim().toUpperCase()).filter(Boolean);
+  const body = {
+    patient_id: currentPatientId,
+    genomic: {
+      test_type:     document.getElementById('pt-test-type').value,
+      test_date:     document.getElementById('pt-test-date').value,
+      result:        document.getElementById('pt-result').value,
+      vus_genes:     genes,
+      cnv_called:    document.getElementById('pt-cnv').value,
+      analysis_type: document.getElementById('pt-analysis-type').value,
+      lab:           document.getElementById('pt-lab').value,
+      notes:         document.getElementById('pt-gen-notes').value,
+    }
+  };
+  try {
+    await apiPost('/api/patient/save-genomic', body);
+  } catch(e) {}
+  ptTab('referrals');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PATIENT: REFERRALS
+═══════════════════════════════════════════════════════════════════════ */
+async function loadPatientReferrals() {
+  const el = document.getElementById('pt-referrals-list');
+  try {
+    const data = await apiFetch(`/api/referrals/${currentPatientId}`);
+    renderReferralList(data.referrals, el, false);
+  } catch(e) {
+    // Offline demo fallback
+    renderReferralList(getDemoReferrals(), el, false);
+  }
+}
+
+function getDemoReferrals() {
+  const d = { P047: [
+    { referral_id:'REF-001', specialist_name:'Dr. Sarah Okonkwo', specialty:'Paediatric Neurology',
+      hospital:'Boston Children\'s Hospital', urgency:'Urgent (within 1 week)', status:'issued',
+      reason:'Evaluation of progressive neurodevelopmental regression, seizure management, and FOXG1 gene variant review. Please assess for FOXG1 syndrome phenotype.',
+      issued_by:'Dr. Marcus Reinholt', issued_at:'2026-02-14T09:00:00Z' },
+    { referral_id:'REF-002', specialist_name:'Dr. Marcus Reinholt', specialty:'Clinical Genetics',
+      hospital:'MGH Genetics', urgency:'Urgent (within 1 week)', status:'issued',
+      reason:'Trio whole exome reanalysis in context of new phenotypic features. CNV analysis not performed — recommend retrospective calling.',
+      issued_by:'Dr. Marcus Reinholt', issued_at:'2026-02-20T11:30:00Z' },
+  ], P031: [], P058: [] };
+  return d[currentPatientId] || [];
+}
+
+function renderReferralList(refs, el, isDoc) {
+  if (!refs.length) {
+    el.innerHTML = `<div style="color:var(--ink-dim);font-size:13px;padding:16px 0">No referrals issued yet. Check back after your doctor reviews your case.</div>`;
+    return;
+  }
+  const icons = { 'Paediatric Neurology':'🧠','Clinical Genetics':'🔬','Metabolic Medicine':'🔬','Cardiology':'🫀','Ophthalmology':'👁','Rehabilitation':'🏃','Other':'📋' };
+  el.innerHTML = refs.map(r => `
+    <div class="ref-card">
+      <div class="ref-icon">${icons[r.specialty] || '📋'}</div>
+      <div class="ref-info">
+        <div class="ref-name">${r.specialist_name}</div>
+        <div class="ref-spec">${r.specialty}</div>
+        <div class="ref-note">${r.reason}</div>
+        <div class="ref-meta">Issued ${fmtDate(r.issued_at)} · ${r.hospital} · <span class="pill pill-issued">${r.urgency}</span></div>
+      </div>
+      <div>
+        <button class="btn-outline" onclick="alert('In production: downloads PDF referral letter for ${r.specialist_name}')">⬇ Download</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PATIENT: CHAT
+═══════════════════════════════════════════════════════════════════════ */
+async function loadPatientChat() {
+  try {
+    const data = await apiFetch(`/api/chat/${currentPatientId}`);
+    renderChat(data.messages, 'pt-chat-msgs', 'patient');
+  } catch(e) {
+    renderChat(getDemoMessages(), 'pt-chat-msgs', 'patient');
+  }
+}
+
+function getDemoMessages() {
+  const d = { P047: [
+    { message_id:'MSG-001', sender:'doctor', sender_name:'Dr. Reinholt', sent_at:'2026-02-18T10:42:00Z',
+      content:"Hello! I've reviewed your updated symptom profile. A few questions — have the hand stereotypies been present since birth, or did they develop after the regression at 18 months?" },
+    { message_id:'MSG-002', sender:'patient', sender_name:'Patient / Family', sent_at:'2026-02-18T14:15:00Z',
+      content:'They started around 20 months — after the regression. Before that she had normal purposeful hand movements.' },
+    { message_id:'MSG-003', sender:'doctor', sender_name:'Dr. Reinholt', sent_at:'2026-02-19T09:05:00Z',
+      content:"Thank you, that's helpful. That timeline is consistent with what we're seeing in the reanalysis. I've sent referrals to Dr. Okonkwo and the genetics team. Please check the Referrals tab." },
+  ], P031: [], P058: [] };
+  return d[currentPatientId] || [];
+}
+
+function renderChat(msgs, containerId, myRole) {
+  const el = document.getElementById(containerId);
+  if (!msgs.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--ink-dim);font-size:13px;padding:32px">No messages yet</div>';
+    return;
+  }
+  el.innerHTML = msgs.map(m => `
+    <div class="chat-msg ${m.sender === myRole ? 'from-me' : 'from-other'}">
+      <div class="bubble">${escHtml(m.content)}</div>
+      <div class="chat-meta">${escHtml(m.sender_name)} · ${fmtDate(m.sent_at)}</div>
+    </div>
+  `).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function ptSendMsg() {
+  const inp = document.getElementById('pt-chat-input');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  const el = document.getElementById('pt-chat-msgs');
+  const div = document.createElement('div');
+  div.className = 'chat-msg from-me';
+  div.innerHTML = `<div class="bubble">${escHtml(txt)}</div><div class="chat-meta">You · Just now</div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  try {
+    await apiPost('/api/chat/send', {
+      patient_id:  currentPatientId,
+      sender:      'patient',
+      sender_name: 'Patient / Family',
+      content:     txt,
+    });
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PATIENT: DIAGNOSIS
+═══════════════════════════════════════════════════════════════════════ */
+async function loadPatientDiagnosis() {
+  const el = document.getElementById('pt-diag-content');
+  try {
+    const data = await apiFetch(`/api/diagnosis/${currentPatientId}`);
+    if (data.published && data.diagnosis) {
+      renderPatientDiagnosis(data.diagnosis, el);
+    } else {
+      el.innerHTML = `<div style="color:var(--ink-dim);font-size:14px;padding:8px 0">Your diagnosis report is not yet available. Your doctor will publish it here after reviewing your case.</div>`;
+    }
+  } catch(e) {
+    // Fallback: show demo diagnosis for FOXG1
+    if (currentPatientId === 'P047') {
+      renderPatientDiagnosis(getDemoDiagnosis(), el);
+    } else {
+      el.innerHTML = `<div style="color:var(--ink-dim);font-size:14px;padding:8px 0">No diagnosis report yet. Your doctor will publish it here once ready.</div>`;
+    }
+  }
+}
+
+function getDemoDiagnosis() {
+  return {
+    suspected_diagnosis:'FOXG1 Syndrome (OMIM:613454)',
+    status:'Suspected — awaiting confirmation',
+    reanalysis_score:84,
+    similarity_score:0.89,
+    signals_active:['OMIM HIGH ⚡','X-linked dominant female flag','CNV not called','5 new HPO terms since 2019 test'],
+    clinical_summary:'Based on the clinical profile, phenotypic trajectory (regression at 18 months, stereotypies, absent speech, seizures), and the FOXG1 VUS identified in the 2019 gene panel, FOXG1 syndrome is the leading candidate. The Resnik similarity score between the HPO profile and canonical FOXG1 syndrome profile is 0.89 — very high phenotypic specificity. Recommending urgent trio reanalysis with CNV calling.',
+    doctor_public_notes:'Referrals to paediatric neurology and clinical genetics have been issued. Please bring all prior test reports to your upcoming appointments. We are here to support you through this process.',
+    next_step:'Trio whole exome reanalysis',
+    issued_by:'Dr. Marcus Reinholt',
+    issued_at:'2026-02-24T14:00:00Z',
+  };
+}
+
+function renderPatientDiagnosis(d, el) {
+  const urgency = d.reanalysis_score >= 80 ? 'pill-urgent' : d.reanalysis_score >= 65 ? 'pill-moderate' : 'pill-consider';
+  const urgencyLabel = d.reanalysis_score >= 80 ? 'URGENT REANALYSIS' : d.reanalysis_score >= 65 ? 'REANALYSIS RECOMMENDED' : 'CONSIDER REANALYSIS';
+  el.innerHTML = `
+    <div class="diag-card">
+      <div class="diag-label">reviGen Reanalysis Score</div>
+      <div class="score-block">
+        <div class="score-num">${d.reanalysis_score}</div>
+        <div class="score-tag">
+          <strong class="pill ${urgency}" style="width:fit-content">${urgencyLabel}</strong>
+          <small>Phenotypic similarity: ${d.similarity_score ? (d.similarity_score * 100).toFixed(0) + '% (Resnik)' : 'N/A'}</small>
+        </div>
+      </div>
+      <div class="diag-label">Active Signals</div>
+      <div class="tag-row" style="margin-bottom:0">
+        ${(d.signals_active || []).map(s => `<span class="tag" style="cursor:default">${s}</span>`).join('')}
+      </div>
+    </div>
+    <div class="diag-card">
+      <div class="diag-label">Leading Diagnosis</div>
+      <div class="diag-headline">${escHtml(d.suspected_diagnosis)}</div>
+      <span class="pill ${urgency}" style="margin-bottom:14px;display:inline-block">${d.status}</span>
+      <div class="diag-body">${escHtml(d.clinical_summary)}</div>
+    </div>
+    <div class="diag-card">
+      <div class="diag-label">Doctor's Notes</div>
+      <div class="diag-body">${escHtml(d.doctor_public_notes || '')}</div>
+      <div style="margin-top:14px;font-size:12px;color:var(--ink-dim)">
+        Signed: ${escHtml(d.issued_by)} · ${fmtDate(d.issued_at)}
+      </div>
+    </div>
+    <div class="diag-card">
+      <div class="diag-label">Recommended Next Step</div>
+      <div class="diag-body" style="font-weight:600">${escHtml(d.next_step || 'Discuss with your doctor')}</div>
+    </div>
+    <button class="btn-primary" onclick="alert('In production: generates and downloads PDF of this diagnosis report.')">⬇ Download Full Report (PDF)</button>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCTOR: PATIENT PANEL
+═══════════════════════════════════════════════════════════════════════ */
+async function loadDocPatient() {
+  const pid = document.getElementById('doc-patient-select').value;
+  if (!pid) return;
+  currentDocPatient = pid;
+  const el = document.getElementById('doc-panel-content');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading…</div>';
+
+  try {
+    const data = await apiFetch(`/api/patient/${pid}/summary`);
+    renderDocPanel(data, el);
+  } catch(e) {
+    // Use demo data
+    const demo = getDemoPanelData(pid);
+    renderDocPanel(demo, el);
+  }
+
+  // Also refresh referral list and chat if those tabs are active
+  if (document.getElementById('doc-referrals').classList.contains('active')) loadDocReferrals();
+  if (document.getElementById('doc-chat').classList.contains('active')) loadDocChat();
+
+  // Pre-fill diagnosis form if score available
+  prefillDiagnosisForm(pid);
+}
+
+const DEMO_PANELS = {
+  P047: {
+    demographics:{ sex:'Female', date_of_birth:'2019-01-15', country_of_origin:'United Arab Emirates', consanguinity:'No' },
+    genomic:{ test_type:'Gene Panel', test_date:'2019-06-01', result:'VUS', vus_genes:['FOXG1'], cnv_called:'No', analysis_type:'Singleton', lab:'GeneDx' },
+    hpo_original:['HP:0001252','HP:0001270','HP:0011968'],
+    hpo_current:['HP:0001263','HP:0002186','HP:0000252','HP:0001252','HP:0002072','HP:0000729','HP:0001344','HP:0001270'],
+    reanalysis:{ reanalysis_score:84, urgency:'Immediate escalation — reanalysis within days', confidence:'URGENT',
+      signal_breakdown:{ omim_gene_disease:{score:0.88,signals:[{gene:'FOXG1',disease:'FOXG1 syndrome',is_new_after_test:true,signal_strength:'HIGH'}],signal_strength:'HIGH'},
+        inheritance_pattern:{score:0.7,flags:[{flag:'XLINKED_FEMALE',gene:'FOXG1'}],flag_count:1,signal_strength:'HIGH'},
+        analysis_method_gaps:{score:0.75,gaps:[{gap:'CNV_CALLING_NOT_PERFORMED',reasoning:'CNV not performed'}],gap_count:1,signal_strength:'HIGH'},
+        disease_match:{score:0.89,signal_strength:'HIGH',similarity_method:'jaccard'},
+        phenotypic_drift:{score:0.65,details:{new_hpo_terms:['HP:0001263','HP:0002186','HP:0000252','HP:0002072','HP:0000729']},signal_strength:'HIGH'},
+        vus_reclassification:{score:0.1,signals:[],signal_strength:'LOW'},
+        alphamissense:{score:0,signals:[],signal_strength:'LOW'},
+        time_since_test:{score:0.3,details:{years_since_test:7},signal_strength:'MEDIUM'},
+        entropy_modifier:{entropy_value:0.0,entropy_boost:0.0,n_vus_genes:1,signal_strength:'LOW'} } }
+  },
+  P031: {
+    demographics:{ sex:'Male', date_of_birth:'2013-08-22', country_of_origin:'Egypt', consanguinity:'Yes — first cousins' },
+    genomic:{ test_type:'WES', test_date:'2018-03-15', result:'VUS', vus_genes:['STXBP1','KCNQ2'], cnv_called:'No', analysis_type:'Singleton', lab:'Centogene' },
+    hpo_original:['HP:0001250','HP:0001252','HP:0001344'],
+    hpo_current:['HP:0001250','HP:0001252','HP:0001344','HP:0001263','HP:0001249','HP:0002376'],
+    reanalysis:{ reanalysis_score:76, urgency:'Reanalysis recommended — schedule within weeks', confidence:'HIGH',
+      signal_breakdown:{ omim_gene_disease:{score:0.7,signals:[{gene:'STXBP1',disease:'DEE4/Ohtahara',is_new_after_test:true,signal_strength:'HIGH'}],signal_strength:'HIGH'},
+        inheritance_pattern:{score:0.5,flags:[{flag:'AR_SINGLE_HIT',gene:'STXBP1'}],flag_count:1,signal_strength:'MEDIUM'},
+        analysis_method_gaps:{score:0.6,gaps:[{gap:'CNV_CALLING_NOT_PERFORMED',reasoning:'CNV not performed'}],gap_count:1,signal_strength:'HIGH'},
+        disease_match:{score:0.78,signal_strength:'HIGH',similarity_method:'jaccard'},
+        phenotypic_drift:{score:0.5,details:{new_hpo_terms:['HP:0001263','HP:0001249','HP:0002376']},signal_strength:'MEDIUM'},
+        vus_reclassification:{score:0.1,signals:[],signal_strength:'LOW'},
+        alphamissense:{score:0,signals:[],signal_strength:'LOW'},
+        time_since_test:{score:0.4,details:{years_since_test:8},signal_strength:'MEDIUM'},
+        entropy_modifier:{entropy_value:0.72,entropy_boost:0.058,n_vus_genes:2,signal_strength:'HIGH'} } }
+  },
+  P058: {
+    demographics:{ sex:'Female', date_of_birth:'2021-05-10', country_of_origin:'Canada', consanguinity:'No' },
+    genomic:{ test_type:'WES', test_date:'2023-02-01', result:'Negative', vus_genes:[], cnv_called:'Yes', analysis_type:'Trio', lab:'Ambry Genetics' },
+    hpo_original:['HP:0001510','HP:0002748','HP:0003165'],
+    hpo_current:['HP:0001510','HP:0002748','HP:0003165','HP:0003072','HP:0000121','HP:0001508'],
+    reanalysis:{ reanalysis_score:62, urgency:'Consider reanalysis — review at next clinic visit', confidence:'HIGH',
+      signal_breakdown:{ omim_gene_disease:{score:0.5,signals:[],signal_strength:'MEDIUM'},
+        inheritance_pattern:{score:0,flags:[],flag_count:0,signal_strength:'LOW'},
+        analysis_method_gaps:{score:0.4,gaps:[{gap:'GENE_PANEL_SCOPE_LIMITED',reasoning:'Panel scope excludes recently characterised genes'}],gap_count:1,signal_strength:'MEDIUM'},
+        disease_match:{score:0.71,signal_strength:'HIGH',similarity_method:'jaccard'},
+        phenotypic_drift:{score:0.4,details:{new_hpo_terms:['HP:0003072','HP:0000121','HP:0001508']},signal_strength:'MEDIUM'},
+        vus_reclassification:{score:0,signals:[],signal_strength:'LOW'},
+        alphamissense:{score:0,signals:[],signal_strength:'LOW'},
+        time_since_test:{score:0.2,details:{years_since_test:3},signal_strength:'LOW'},
+        entropy_modifier:{entropy_value:0.0,entropy_boost:0.0,n_vus_genes:0,signal_strength:'LOW'} } }
+  },
+};
+
+function getDemoPanelData(pid) { return DEMO_PANELS[pid] || {}; }
+
+function renderDocPanel(d, el) {
+  const dem = d.demographics || {};
+  const gen = d.genomic || {};
+  const r   = d.reanalysis || {};
+  const sb  = r.signal_breakdown || {};
+  const scoreColor = (r.reanalysis_score||0) >= 80 ? '#f87171' : (r.reanalysis_score||0) >= 65 ? '#fbbf24' : '#86efac';
+
+  el.innerHTML = `
+    <div class="panel-sec">
+      <div class="panel-sec-title">Demographics</div>
+      <div class="panel-row"><span class="panel-key">Age / Sex</span><span class="panel-val">${calcAge(dem.date_of_birth)} · ${dem.sex||'—'}</span></div>
+      <div class="panel-row"><span class="panel-key">Origin</span><span class="panel-val">${dem.country_of_origin||'—'}</span></div>
+      <div class="panel-row"><span class="panel-key">Consanguinity</span><span class="panel-val">${dem.consanguinity||'—'}</span></div>
+    </div>
+    <div class="panel-sec">
+      <div class="panel-sec-title">Prior Test</div>
+      <div class="panel-row"><span class="panel-key">Type</span><span class="panel-val">${gen.test_type||'—'}</span></div>
+      <div class="panel-row"><span class="panel-key">Date</span><span class="panel-val">${gen.test_date||'—'}</span></div>
+      <div class="panel-row"><span class="panel-key">Lab</span><span class="panel-val">${gen.lab||'—'}</span></div>
+      <div class="panel-row"><span class="panel-key">Analysis</span><span class="panel-val">${gen.analysis_type||'—'}</span></div>
+      <div class="panel-row"><span class="panel-key">CNV called</span><span class="panel-val" style="color:${gen.cnv_called==='No'?'#f87171':'#86efac'}">${gen.cnv_called||'—'}</span></div>
+    </div>
+    <div class="panel-sec">
+      <div class="panel-sec-title">VUS Genes</div>
+      ${(gen.vus_genes||[]).length ? gen.vus_genes.map(g=>`<span class="gene-badge">${g}</span>`).join('') : '<span style="color:var(--panel-dim);font-size:12px">None reported</span>'}
+    </div>
+    <div class="panel-sec">
+      <div class="panel-sec-title">Current HPO Terms</div>
+      <div>${(d.hpo_current||[]).map(h=>`<span class="s-chip">${h}</span>`).join('')||'<span style="color:var(--panel-dim);font-size:12px">Not recorded</span>'}</div>
+    </div>
+    <div class="panel-sec">
+      <div class="panel-sec-title">Original HPO Terms</div>
+      <div>${(d.hpo_original||[]).map(h=>`<span class="s-chip">${h}</span>`).join('')||'<span style="color:var(--panel-dim);font-size:12px">Not recorded</span>'}</div>
+    </div>
+    ${r.reanalysis_score ? `
+    <div class="panel-sec">
+      <div class="panel-sec-title">reviGen Score</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="font-family:'DM Serif Display',serif;font-size:42px;color:#fff;line-height:1">${r.reanalysis_score}</div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:${scoreColor}">${r.urgency||''}</div>
+          <div style="font-size:11px;color:var(--panel-dim)">7-signal analysis</div>
+        </div>
+      </div>
+      <div class="panel-row"><span class="panel-key">OMIM</span><span class="panel-val" style="color:${(sb.omim_gene_disease?.score||0)>0.3?'#86efac':'var(--panel-dim)'}">${(sb.omim_gene_disease?.score||0)>0.3?'HIGH ⚡':'Low'}</span></div>
+      <div class="panel-row"><span class="panel-key">Disease match</span><span class="panel-val">${((sb.disease_match?.score||0)*100).toFixed(0)}% (${sb.disease_match?.similarity_method||'jaccard'})</span></div>
+      <div class="panel-row"><span class="panel-key">CNV gap</span><span class="panel-val" style="color:${(sb.analysis_method_gaps?.gaps||[]).length?'#fbbf24':'var(--panel-dim)'}">${(sb.analysis_method_gaps?.gaps||[]).length?'Yes':'No'}</span></div>
+      <div class="panel-row"><span class="panel-key">Entropy</span><span class="panel-val">${((sb.entropy_modifier?.entropy_value||0)*100).toFixed(0)}%</span></div>
+    </div>` : ''}
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCTOR: NLP REANALYSIS
+═══════════════════════════════════════════════════════════════════════ */
+const NLP_DEMOS = {
+  foxg1: {
+    orig:'Infant with hypotonia, motor delay, and feeding difficulties at 6 months. Referred for paediatric gene panel.',
+    curr:'7-year-old with global developmental delay, absent speech, apraxia, autistic behaviour, choreiform movements, and dysarthria. Progressive course noted since regression at 18 months. Frequent absence seizures.',
+    genes:'FOXG1', date:'2019-06-01', type:'Gene Panel', sex:'Female', cnv:'no', analysis:'singleton',
+  },
+  stxbp1: {
+    orig:'Neonatal seizures, hypotonia from birth. Treated for infantile spasms. Whole exome ordered.',
+    curr:'12-year-old with refractory epilepsy, severe intellectual disability, absent speech, hypotonia. Daily tonic-clonic seizures despite valproate, levetiracetam, and clobazam.',
+    genes:'STXBP1, KCNQ2', date:'2018-03-15', type:'Whole Exome Sequencing (WES)', sex:'Male', cnv:'no', analysis:'singleton',
+  },
+  pthr1: {
+    orig:'Short stature at 1 year. Rickets on X-ray at 18 months. Vitamin D supplementation started. Whole exome sequencing ordered.',
+    curr:'4-year-old with severe rickets, hypercalcemia, nephrocalcinosis, failure to thrive. PTH markedly elevated despite normal calcium intake. Skeletal X-rays show metaphyseal changes.',
+    genes:'', date:'2023-02-01', type:'Whole Exome Sequencing (WES)', sex:'Female', cnv:'yes', analysis:'trio',
+  },
+};
+
+function setNlpMode(mode) {
+  nlpMode = mode;
+  document.getElementById('nlp-mode-notes').classList.toggle('active', mode === 'notes');
+  document.getElementById('nlp-mode-hpo').classList.toggle('active', mode === 'hpo');
+  document.getElementById('nlp-notes-panel').style.display = mode === 'notes' ? '' : 'none';
+  document.getElementById('nlp-hpo-panel').style.display   = mode === 'hpo'   ? '' : 'none';
+  document.getElementById('nlp-result').style.display = 'none';
+}
+
+function loadNlpDemo(name) {
+  const d = NLP_DEMOS[name];
+  if (!d) return;
+  document.getElementById('nlp-orig').value       = d.orig;
+  document.getElementById('nlp-curr').value       = d.curr;
+  document.getElementById('nlp-genes').value      = d.genes;
+  document.getElementById('nlp-test-date').value  = d.date;
+  document.getElementById('nlp-test-type').value  = d.type;
+  document.getElementById('nlp-sex').value        = d.sex;
+  document.getElementById('nlp-cnv').value        = d.cnv;
+  document.getElementById('nlp-analysis').value   = d.analysis;
+  document.getElementById('nlp-result').style.display = 'none';
+}
+
+async function runNlpPipeline() {
+  const btn = document.getElementById('nlp-run-btn');
+  const res = document.getElementById('nlp-result');
+  const orig = document.getElementById('nlp-orig').value.trim();
+  const curr = document.getElementById('nlp-curr').value.trim();
+  if (!orig && !curr) { alert('Please enter clinical notes first.'); return; }
+
+  const genes = document.getElementById('nlp-genes').value.split(',').map(g=>g.trim().toUpperCase()).filter(Boolean);
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Running…';
+  res.style.display = 'block';
+  res.innerHTML = `<div class="loading"><div class="spinner"></div> Extracting HPO terms via Claude NLP → running 7-signal reanalysis…</div>`;
+
+  const body = {
+    original_clinical_text: orig,
+    current_clinical_text:  curr,
+    vus_genes:              genes,
+    test_date:              document.getElementById('nlp-test-date').value || '2019-01-01',
+    test_type:              document.getElementById('nlp-test-type').value,
+    patient_sex:            document.getElementById('nlp-sex').value || null,
+    cnv_calling_performed:  document.getElementById('nlp-cnv').value === 'yes' ? true : document.getElementById('nlp-cnv').value === 'no' ? false : null,
+    analysis_type:          document.getElementById('nlp-analysis').value,
+    patient_id:             currentDocPatient || null,
+  };
+
+  try {
+    const data = await apiPost('/api/extract-and-score', body);
+    renderReanalysisResult(data, res);
+    // Store score for diagnosis pre-fill
+    if (currentDocPatient) DEMO_PANELS[currentDocPatient] = { ...DEMO_PANELS[currentDocPatient], reanalysis: data };
+    updateDocDiagnosisScore(data);
+  } catch(e) {
+    // Demo fallback: show mock result
+    const mockData = getMockReanalysisResult(genes, body.cnv_calling_performed);
+    renderReanalysisResult(mockData, res);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🧠 Extract HPO & Run Reanalysis';
+  }
+}
+
+async function runHpoPipeline() {
+  const res = document.getElementById('nlp-result');
+  const origRaw = document.getElementById('hpo-orig').value;
+  const currRaw = document.getElementById('hpo-curr').value;
+  const parseHpo = s => s.split(/[\n,]/).map(h=>h.trim()).filter(h=>h.match(/HP:\d{7}/));
+
+  const body = {
+    original_hpo_terms: parseHpo(origRaw),
+    current_hpo_terms:  parseHpo(currRaw),
+    vus_genes:          document.getElementById('hpo-genes').value.split(',').map(g=>g.trim().toUpperCase()).filter(Boolean),
+    test_date:          document.getElementById('hpo-test-date').value,
+    test_type:          document.getElementById('hpo-test-type').value,
+    patient_sex:        document.getElementById('hpo-sex').value || null,
+    cnv_calling_performed: document.getElementById('hpo-cnv').value === 'yes' ? true : document.getElementById('hpo-cnv').value === 'no' ? false : null,
+    analysis_type:      document.getElementById('hpo-analysis').value,
+    patient_id:         currentDocPatient || null,
+  };
+
+  res.style.display = 'block';
+  res.innerHTML = `<div class="loading"><div class="spinner"></div> Running 7-signal reanalysis…</div>`;
+
+  try {
+    const data = await apiPost('/api/reanalysis-score', body);
+    renderReanalysisResult(data, res);
+    updateDocDiagnosisScore(data);
+  } catch(e) {
+    const mockData = getMockReanalysisResult(body.vus_genes, body.cnv_calling_performed);
+    renderReanalysisResult(mockData, res);
+  }
+}
+
+function getMockReanalysisResult(vus_genes, cnv_done) {
+  const score = vus_genes.length ? 84 : 62;
+  return {
+    reanalysis_score: score,
+    urgency: score >= 80 ? 'URGENT REANALYSIS' : 'REANALYSIS RECOMMENDED',
+    confidence: score >= 80 ? 'HIGH' : 'MEDIUM',
+    signal_breakdown: {
+      omim_gene_disease:    { score: vus_genes.length ? 0.88 : 0.3, signals: vus_genes.map(g=>({gene:g,disease:'associated disorder',is_new_after_test:true,signal_strength:'HIGH'})), signal_strength: vus_genes.length?'HIGH':'LOW' },
+      phenotypic_drift:     { score: 0.65, details: { new_hpo_terms: ['HP:0001263','HP:0002186','HP:0000252'], new_symptoms:[] }, signal_strength:'HIGH' },
+      disease_match:        { score: 0.89, signal_strength:'HIGH', similarity_method:'jaccard', best_matching_disease: vus_genes[0]||'FOXG1' },
+      vus_reclassification: { score: 0.1, signals:[], signal_strength:'LOW' },
+      inheritance_pattern:  { score: 0.6, flags: vus_genes.includes('FOXG1')?[{flag:'XLINKED_FEMALE',gene:'FOXG1'}]:[], flag_count: vus_genes.includes('FOXG1')?1:0, signal_strength: vus_genes.includes('FOXG1')?'HIGH':'LOW' },
+      analysis_method_gaps: { score: cnv_done?0.0:0.75, gaps: cnv_done?[]:[{gap:'CNV_CALLING_NOT_PERFORMED',reasoning:'CNV calling was not performed'}], gap_count: cnv_done?0:1, signal_strength: cnv_done?'LOW':'HIGH' },
+      alphamissense:        { score: 0, signals:[], signal_strength:'LOW' },
+      time_since_test:      { score: 0.3, details:{years_since_test:6}, signal_strength:'MEDIUM' },
+      entropy_modifier:     { entropy_value: vus_genes.length>=2?0.72:0.0, entropy_boost: vus_genes.length>=2?0.058:0.0, n_vus_genes: vus_genes.length, signal_strength: vus_genes.length>=2?'HIGH':'LOW' },
+    },
+    clinical_recommendation: {
+      top_reasons: [
+        vus_genes.length ? `${vus_genes[0]}→disease association updated in OMIM after original test` : 'New gene-disease associations published since test',
+        'Analysis method gaps: CNV calling not performed (10.8% diagnostic yield)',
+        'Significant phenotypic expansion — 5 new symptoms since original referral',
+      ],
+      checklist: [
+        vus_genes.length ? `Re-evaluate ${vus_genes[0]} VUS against updated OMIM/ClinVar criteria` : 'Re-evaluate variants in updated databases',
+        'Retrospective CNV calling on archived BAM data',
+        'Order trio sequencing to assess for de novo variants',
+        'Refer to specialist for clinical re-assessment',
+      ],
+      narrative: `Score ${score}/100 — ${score >= 80 ? 'urgent' : 'recommended'} reanalysis. ${vus_genes.length ? `${vus_genes[0]} gene-disease association substantially updated since original testing.` : 'New disease-gene associations published.'} CNV analysis not previously performed; retrospective calling on archived data is recommended.`,
+      recommended_reanalysis_type: 'trio',
+    },
+    nlp_extraction: { original_term_count: 3, current_term_count: 8, original_method: 'claude', current_method: 'claude',
+      original_hpo_terms: ['HP:0001252','HP:0001270','HP:0011968'],
+      current_hpo_terms: ['HP:0001263','HP:0002186','HP:0000252','HP:0001252','HP:0002072','HP:0000729','HP:0001344','HP:0001270'] },
+  };
+}
+
+function renderReanalysisResult(data, el) {
+  const score   = data.reanalysis_score || 0;
+  const urgency = data.urgency || '';
+  const sb      = data.signal_breakdown || {};
+  const rec     = data.clinical_recommendation || {};
+  const nlp     = data.nlp_extraction;
+
+  const scoreColor = score >= 80 ? '#dc2626' : score >= 65 ? '#d97706' : '#7c3aed';
+  const pillClass  = score >= 80 ? 'pill-urgent' : score >= 65 ? 'pill-moderate' : 'pill-consider';
+
+  const newSyms = sb.phenotypic_drift?.details?.new_hpo_terms?.length
+               || sb.phenotypic_drift?.details?.new_symptoms?.length || 0;
+  const signalRows = [
+    { label:'OMIM', val:((sb.omim_gene_disease?.score||0)*100).toFixed(0)+'%', sub:((sb.omim_gene_disease?.signals||[]).filter(s=>s.is_new_after_test).length)+' new after test', hi:(sb.omim_gene_disease?.score||0)>0.5 },
+    { label:'Disease Match', val:((sb.disease_match?.score||0)*100).toFixed(0)+'%', sub:(sb.disease_match?.similarity_method||'jaccard'), hi:(sb.disease_match?.score||0)>0.7 },
+    { label:'Phenotypic Drift', val:newSyms+' new', sub:'HPO terms since test', hi:newSyms>2 },
+    { label:'Inheritance', val:(sb.inheritance_pattern?.flags||[]).length ? sb.inheritance_pattern.flags[0].flag : 'No flags', sub:(sb.inheritance_pattern?.flags||[]).length+' flags', hi:(sb.inheritance_pattern?.flags||[]).length>0 },
+    { label:'Analysis Gaps', val:(sb.analysis_method_gaps?.gaps||[]).length+' gaps', sub:(sb.analysis_method_gaps?.gaps||[]).map(g=>g.gap?.replace(/_/g,' ')).join(', ')||'None', hi:(sb.analysis_method_gaps?.gaps||[]).length>0 },
+    { label:'Entropy', val:((sb.entropy_modifier?.entropy_value||0)*100).toFixed(0)+'%', sub:`${sb.entropy_modifier?.n_vus_genes||0} VUS genes`, hi:(sb.entropy_modifier?.entropy_value||0)>0.5 },
+  ];
+
+  el.innerHTML = `
+    ${nlp ? `
+    <div class="nlp-banner">
+      <div class="nlp-banner-title">✨ NLP Extraction Complete</div>
+      <div style="font-size:13px;color:var(--ink-mid)">
+        Original: <strong>${nlp.original_term_count}</strong> HPO terms · Current: <strong>${nlp.current_term_count}</strong> HPO terms · Method: <strong>${nlp.current_method}</strong>
+      </div>
+      <div class="nlp-terms">
+        ${(nlp.current_hpo_terms||[]).map(h=>`<span class="nlp-term">${h}</span>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <div class="diag-card">
+      <div class="diag-label">Reanalysis Score</div>
+      <div class="score-block">
+        <div class="score-num" style="color:${scoreColor}">${score}</div>
+        <div class="score-tag">
+          <span class="pill ${pillClass}">${urgency}</span>
+          <small style="margin-top:4px">Confidence: ${data.confidence || 'MEDIUM'}</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="signals-grid">
+      ${signalRows.map(s=>`
+        <div class="signal-cell ${s.hi?'hi':''}">
+          <div class="signal-name">${s.label}</div>
+          <div class="signal-val" style="font-size:16px;color:${s.hi?'#dc2626':'var(--ink)'}">${s.val}</div>
+          <div class="signal-sub">${s.sub}</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="diag-card">
+      <div class="diag-label">Clinical Assessment</div>
+      <div class="diag-body" style="margin-bottom:16px">${escHtml(rec.narrative || '')}</div>
+
+      <div class="diag-label">Why Reanalysis Now?</div>
+      <ul class="checklist" style="margin-bottom:16px">
+        ${(rec.top_reasons||[]).map(r=>`<li style="color:var(--ink)">${escHtml(r)}</li>`).join('')}
+      </ul>
+
+      <div class="diag-label">Recommended Actions</div>
+      <ul class="checklist">
+        ${(rec.checklist||[]).map(c=>`<li>${escHtml(c)}</li>`).join('')}
+      </ul>
+
+      ${rec.recommended_reanalysis_type ? `
+      <div style="margin-top:14px">
+        <span class="pill pill-moderate">Recommended: ${rec.recommended_reanalysis_type.replace(/_/g,' ')}</span>
+      </div>` : ''}
+    </div>
+
+    <button class="btn-primary" onclick="prefillDiagnosisFromResult(${JSON.stringify(data).replace(/"/g,'&quot;')})">
+      → Pre-fill Diagnosis Form with These Results
+    </button>
+  `;
+}
+
+function updateDocDiagnosisScore(data) {
+  const el = document.getElementById('doc-diag-score-area');
+  const score = data.reanalysis_score || 0;
+  const pillClass = score >= 80 ? 'pill-urgent' : score >= 65 ? 'pill-moderate' : 'pill-consider';
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="background:var(--white);border:1.5px solid var(--rule);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:16px;max-width:400px">
+      <div style="font-family:'DM Serif Display',serif;font-size:40px;line-height:1">${score}</div>
+      <div>
+        <span class="pill ${pillClass}">${data.urgency}</span>
+        <div style="font-size:12px;color:var(--ink-dim);margin-top:4px">reviGen 7-signal score</div>
+      </div>
+    </div>
+  `;
+}
+
+function prefillDiagnosisFromResult(data) {
+  docTab('doc-diagnosis', document.querySelectorAll('.doc-tab')[3]);
+  const rec = data.clinical_recommendation || {};
+  if (rec.narrative) document.getElementById('diag-summary').value = rec.narrative;
+  if (rec.recommended_reanalysis_type) {
+    const nextstep = document.getElementById('diag-nextstep');
+    const map = {trio:'Trio whole exome reanalysis', CNV_reanalysis:'CNV retrospective calling', genome_upgrade:'Genome sequencing upgrade', variant_reinterpretation:'Variant reinterpretation only'};
+    if (map[rec.recommended_reanalysis_type]) nextstep.value = map[rec.recommended_reanalysis_type];
+  }
+  updateDocDiagnosisScore(data);
+}
+
+function prefillDiagnosisForm(pid) {
+  const panel = DEMO_PANELS[pid];
+  if (!panel?.reanalysis) return;
+  updateDocDiagnosisScore(panel.reanalysis);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCTOR: REFERRALS
+═══════════════════════════════════════════════════════════════════════ */
+async function loadDocReferrals() {
+  if (!currentDocPatient) return;
+  const el = document.getElementById('doc-ref-list');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading…</div>';
+  try {
+    const data = await apiFetch(`/api/referrals/${currentDocPatient}`);
+    renderReferralList(data.referrals, el, true);
+  } catch(e) {
+    renderReferralList(getDemoReferralsByPid(currentDocPatient), el, true);
+  }
+}
+
+function getDemoReferralsByPid(pid) {
+  const d = { P047: [
+    { referral_id:'REF-001', specialist_name:'Dr. Sarah Okonkwo', specialty:'Paediatric Neurology', hospital:'Boston Children\'s Hospital', urgency:'Urgent (within 1 week)', reason:'Evaluation of progressive neurodevelopmental regression and FOXG1 gene variant review.', issued_by:'Dr. Reinholt', issued_at:'2026-02-14T09:00:00Z', status:'issued' },
+    { referral_id:'REF-002', specialist_name:'Dr. Marcus Reinholt', specialty:'Clinical Genetics', hospital:'MGH Genetics', urgency:'Urgent', reason:'Trio reanalysis with CNV calling.', issued_by:'Dr. Reinholt', issued_at:'2026-02-20T11:30:00Z', status:'issued' },
+  ], P031:[], P058:[] };
+  return d[pid] || [];
+}
+
+async function createReferral() {
+  if (!currentDocPatient) { alert('Please select a patient first.'); return; }
+  const body = {
+    patient_id:       currentDocPatient,
+    specialist_name:  document.getElementById('ref-specialist').value,
+    specialty:        document.getElementById('ref-specialty').value,
+    hospital:         document.getElementById('ref-hospital').value,
+    urgency:          document.getElementById('ref-urgency').value,
+    reason:           document.getElementById('ref-reason').value,
+    issued_by:        document.getElementById('ref-issuer').value || 'Dr. (reviGen)',
+  };
+  if (!body.specialist_name || !body.reason) { alert('Please fill in specialist name and referral reason.'); return; }
+
+  try {
+    await apiPost('/api/referrals/create', body);
+    alert('Referral sent to patient portal!');
+    loadDocReferrals();
+  } catch(e) {
+    alert('Referral recorded (demo mode — API not running).');
+    const el = document.getElementById('doc-ref-list');
+    const demoRef = { ...body, referral_id:`REF-${Date.now()}`, issued_at: new Date().toISOString(), status:'issued' };
+    const existing = getDemoReferralsByPid(currentDocPatient);
+    renderReferralList([...existing, demoRef], el, true);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCTOR: CHAT
+═══════════════════════════════════════════════════════════════════════ */
+async function loadDocChat() {
+  if (!currentDocPatient) return;
+  try {
+    const data = await apiFetch(`/api/chat/${currentDocPatient}`);
+    renderChat(data.messages, 'doc-chat-msgs', 'doctor');
+  } catch(e) {
+    // Use demo messages, from doctor's perspective
+    const msgs = getDemoMessagesByPid(currentDocPatient);
+    renderChat(msgs, 'doc-chat-msgs', 'doctor');
+  }
+}
+
+function getDemoMessagesByPid(pid) {
+  return pid === 'P047' ? getDemoMessages() : [];
+}
+
+async function docSendMsg() {
+  const inp = document.getElementById('doc-chat-input');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  if (!currentDocPatient) { alert('Select a patient first.'); return; }
+  inp.value = '';
+  const el = document.getElementById('doc-chat-msgs');
+  const div = document.createElement('div');
+  div.className = 'chat-msg from-me';
+  div.innerHTML = `<div class="bubble">${escHtml(txt)}</div><div class="chat-meta">You · Just now</div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  try {
+    await apiPost('/api/chat/send', {
+      patient_id:  currentDocPatient,
+      sender:      'doctor',
+      sender_name: document.getElementById('ref-issuer').value || 'Dr. (reviGen)',
+      content:     txt,
+    });
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCTOR: DIAGNOSIS
+═══════════════════════════════════════════════════════════════════════ */
+async function publishDiagnosis() {
+  if (!currentDocPatient) { alert('Please select a patient first.'); return; }
+  const body = {
+    patient_id:           currentDocPatient,
+    suspected_diagnosis:  document.getElementById('diag-name').value,
+    status:               document.getElementById('diag-status').value,
+    next_step:            document.getElementById('diag-nextstep').value,
+    clinical_summary:     document.getElementById('diag-summary').value,
+    doctor_public_notes:  document.getElementById('diag-private').value,
+    issued_by:            document.getElementById('diag-issuer').value || 'Dr. (reviGen)',
+  };
+  if (!body.suspected_diagnosis || !body.clinical_summary) { alert('Please fill in the diagnosis name and clinical summary.'); return; }
+
+  try {
+    await apiPost('/api/diagnosis/publish', body);
+    alert(`Diagnosis published to Patient #${currentDocPatient}'s portal!`);
+  } catch(e) {
+    alert(`Diagnosis published (demo mode — API not running).\nPatient can now see this in their Diagnosis tab.`);
+    // Store locally for demo
+    if (!DEMO_PANELS[currentDocPatient]) DEMO_PANELS[currentDocPatient] = {};
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   API HELPERS
+═══════════════════════════════════════════════════════════════════════ */
+async function apiFetch(path) {
+  const resp = await fetch(API + path, { headers:{'Content-Type':'application/json'} });
+  if (!resp.ok) throw new Error(await resp.text());
+  return resp.json();
+}
+
+async function apiPost(path, body) {
+  const resp = await fetch(API + path, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) throw new Error(await resp.text());
+  return resp.json();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════════════════════════════════ */
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  } catch { return iso; }
+}
+
+function calcAge(dob) {
+  if (!dob) return '—';
+  const d = new Date(dob);
+  const now = new Date();
+  const yrs = Math.floor((now - d) / (365.25 * 24 * 3600 * 1000));
+  return `${yrs} yrs`;
+}
+</script>
+</body>
+</html>

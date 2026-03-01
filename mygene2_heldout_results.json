@@ -1,0 +1,204 @@
+{
+  "summary_all": {
+    "n": 10,
+    "precision_at1": 0.5,
+    "precision_at3": 0.7,
+    "precision_at10": 0.7,
+    "f1_at1": 0.5,
+    "f1_at3": 0.7,
+    "f1_at10": 0.7,
+    "mrr": 0.6
+  },
+  "summary_in_db": {
+    "n": 7,
+    "precision_at1": 0.7142857142857143,
+    "precision_at3": 1.0,
+    "precision_at10": 1.0,
+    "f1_at1": 0.7142857142857143,
+    "f1_at3": 1.0,
+    "f1_at10": 1.0,
+    "mrr": 0.8571428571428571
+  },
+  "summary_out_db": {
+    "n": 3,
+    "precision_at1": 0.0,
+    "precision_at3": 0.0,
+    "precision_at10": 0.0,
+    "f1_at1": 0,
+    "f1_at3": 0,
+    "f1_at10": 0,
+    "mrr": 0.0
+  },
+  "per_sample": [
+    {
+      "sample_id": "KCNQ2_mg2",
+      "true_gene": "KCNQ2",
+      "disease_name": "Developmental & epileptic encephalopathy 7",
+      "in_db": true,
+      "top1_prediction": "SCN2A",
+      "top3_predictions": [
+        "SCN2A",
+        "KCNQ2",
+        "STXBP1"
+      ],
+      "rank_of_true": 2,
+      "correct_top1": false,
+      "correct_top3": true,
+      "correct_top10": true,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "KCNT1_mg2",
+      "true_gene": "KCNT1",
+      "disease_name": "Epileptic encephalopathy, early infantile, 14",
+      "in_db": true,
+      "top1_prediction": "KCNT1",
+      "top3_predictions": [
+        "KCNT1",
+        "STXBP1",
+        "SCN8A"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "SCN8A_mg2",
+      "true_gene": "SCN8A",
+      "disease_name": "Developmental & epileptic encephalopathy 13",
+      "in_db": true,
+      "top1_prediction": "STXBP1",
+      "top3_predictions": [
+        "STXBP1",
+        "SCN8A",
+        "KCNT1"
+      ],
+      "rank_of_true": 2,
+      "correct_top1": false,
+      "correct_top3": true,
+      "correct_top10": true,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "SETD5_mg2",
+      "true_gene": "SETD5",
+      "disease_name": "Mental retardation, autosomal dominant 23",
+      "in_db": true,
+      "top1_prediction": "SETD5",
+      "top3_predictions": [
+        "SETD5",
+        "KAT6A",
+        "MED13L"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "ADNP_mg2",
+      "true_gene": "ADNP",
+      "disease_name": "ADNP syndrome / Helsmoortel-Van der Aa syndrome",
+      "in_db": true,
+      "top1_prediction": "ADNP",
+      "top3_predictions": [
+        "ADNP",
+        "KAT6A",
+        "MED13L"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "GRIN2A_mg2",
+      "true_gene": "GRIN2A",
+      "disease_name": "Epilepsy-aphasia spectrum",
+      "in_db": true,
+      "top1_prediction": "GRIN2A",
+      "top3_predictions": [
+        "GRIN2A",
+        "STXBP1",
+        "SCN8A"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "SETBP1_mg2",
+      "true_gene": "SETBP1",
+      "disease_name": "SETBP1 haploinsufficiency / Schinzel-Giedion syndrome",
+      "in_db": true,
+      "top1_prediction": "SETBP1",
+      "top3_predictions": [
+        "SETBP1",
+        "ANKRD11",
+        "SETD5"
+      ],
+      "rank_of_true": 1,
+      "correct_top1": true,
+      "correct_top3": true,
+      "correct_top10": true,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "KDM1A_mg2",
+      "true_gene": "KDM1A",
+      "disease_name": "KDM1A-related neurodevelopmental disorder (Kabuki-like)",
+      "in_db": false,
+      "top1_prediction": "SETD5",
+      "top3_predictions": [
+        "SETD5",
+        "KAT6A",
+        "MED13L"
+      ],
+      "rank_of_true": null,
+      "correct_top1": false,
+      "correct_top3": false,
+      "correct_top10": false,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "SYNGAP1_mg2",
+      "true_gene": "SYNGAP1",
+      "disease_name": "Mental retardation, autosomal dominant 5",
+      "in_db": false,
+      "top1_prediction": "STXBP1",
+      "top3_predictions": [
+        "STXBP1",
+        "SCN8A",
+        "KAT6A"
+      ],
+      "rank_of_true": null,
+      "correct_top1": false,
+      "correct_top3": false,
+      "correct_top10": false,
+      "similarity_method": "jaccard"
+    },
+    {
+      "sample_id": "SHANK3_mg2",
+      "true_gene": "SHANK3",
+      "disease_name": "Phelan-McDermid syndrome (22q13.3 deletion)",
+      "in_db": false,
+      "top1_prediction": "KAT6A",
+      "top3_predictions": [
+        "KAT6A",
+        "MED13L",
+        "DYRK1A"
+      ],
+      "rank_of_true": null,
+      "correct_top1": false,
+      "correct_top3": false,
+      "correct_top10": false,
+      "similarity_method": "jaccard"
+    }
+  ]
+}
